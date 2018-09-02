@@ -117,7 +117,21 @@ int Image32::Contrast(const float& contrast,Image32& outputImage) const
 
 int Image32::Saturate(const float& saturation,Image32& outputImage) const
 {
-	return 0;
+	outputImage = *this;
+	int height = this->height();
+	int width = this->width();
+	int total = height * width;
+
+	for (int i = 0; i < width; i++) {
+		for (int j = 0; j < height; j++) {
+			Pixel32 &pixel = outputImage.pixel(i, j);
+			float luminance = pixel.r*0.3 + pixel.g*0.59 + pixel.b*0.11;
+			pixel.r = rangeClamp(0, 255, ((pixel.r - luminance)*saturation + luminance));
+			pixel.g = rangeClamp(0, 255, ((pixel.g - luminance)*saturation + luminance));
+			pixel.b = rangeClamp(0, 255, ((pixel.b - luminance)*saturation + luminance));
+		}
+	}
+	return 1;
 }
 
 int Image32::Quantize(const int& bits,Image32& outputImage) const

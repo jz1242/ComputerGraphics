@@ -106,7 +106,6 @@ int main(int argc,char* argv[]){
 		return EXIT_FAILURE;
 	}
 	printf("Input dimensions: %dx%d\n",inImage.width(),inImage.height());
-	//outImage = inImage;//I added this to get the initial image into my outimage not sure if required
 	// Filter the image
 	if(RandomNoise.set){
 		if(!inImage.AddRandomNoise(RandomNoise.value,outImage)){

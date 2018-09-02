@@ -1,0 +1,34 @@
+8/31
+Human vision
+	Vision - light bounces and triggers response in eye, diff wavelengths
+	Visible light - freq: 400nm - 700nm
+	retina has cones and rods: 6-7 mill cones in retina
+	cones:
+		responsible for photopic vision
+		Color sensitive
+	Rods: 120 mill roda retina
+		1000x more light sensitive
+		monochromatic vision
+	Tristimulus Theory of Color
+		Spectral response functions of each of the 3 types of cones on human retina
+		RGB
+	Does not mean we can see the difference between the different spectral distribution
+	metameters - 2 spectral distributions that look the same
+	
+Image Representation
+	pixel -something that cpatures the notion of color
+	luminance pixels
+		grey scale images(intensity images)
+		0-1.0 or 0 - 255
+	RGB pixels
+	color pixels0-1.0 or 0-255 (8bit)(HDR11bit more color channels)
+Resolution
+	spatial resolution: width x heigt pixel
+	intensity color resolution: n bits per pixel
+	temporal resolution: n Hz(fps)
+Image Quantitization Artifacts
+	with only a small number of bits for each color channel there is limit to intensity resolution of an images
+		black which images allocates 1 bits
+		
+		alpha = 0 calculate grey scale image
+

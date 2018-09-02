@@ -1,12 +1,7 @@
-﻿  bmp.cpp
-  image.cpp
-  image.todo.cpp
-  jpeg.cpp
-  lineSegments.cpp
-  lineSegments.todo.cpp
-  main.cpp
-  cmdLineParser.cpp
-d:\github\computergraphics\assignment1\assignment1\util\cmdlineparser.cpp(8): warning C4996: 'stricmp': The POSIX name for this item is deprecated. Instead, use the ISO C and C++ conformant name: _stricmp. See online help for details.
-  c:\program files (x86)\windows kits\10\include\10.0.17134.0\ucrt\string.h(549): note: see declaration of 'stricmp'
-  Generating Code...
+﻿  image.todo.cpp
+d:\github\computergraphics\assignment1\assignment1\image\image.todo.cpp(27): warning C4244: '=': conversion from 'float' to 'unsigned char', possible loss of data
+d:\github\computergraphics\assignment1\assignment1\image\image.todo.cpp(28): warning C4244: '=': conversion from 'float' to 'unsigned char', possible loss of data
+d:\github\computergraphics\assignment1\assignment1\image\image.todo.cpp(29): warning C4244: '=': conversion from 'float' to 'unsigned char', possible loss of data
+d:\github\computergraphics\assignment1\assignment1\image\image.todo.cpp(30): warning C4244: '=': conversion from 'float' to 'unsigned char', possible loss of data
+d:\github\computergraphics\assignment1\assignment1\image\image.todo.cpp(37): warning C4244: 'initializing': conversion from 'float' to 'unsigned char', possible loss of data
   Assignment1.vcxproj -> D:\github\computergraphics\assignment1\Assignment1\x64\Release\Assignment1.exe

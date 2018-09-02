@@ -1,21 +1,61 @@
 #include "image.h"
 #include <stdlib.h>
 #include <math.h>
-
 ////////////////////////////
 // Image processing stuff //
 ////////////////////////////
+int rangeClamp(int low, int high, int val) {
+	if (val < low) {
+		return low;
+	}
+	if (val > high) {
+		return high;
+	}
+	return val;
+}
+
 Pixel::Pixel(const Pixel32& p)
 {
+	this->r = (float) p.r / 255;
+	this->g = (float) p.g / 255;
+	this->b = (float) p.b / 255;
+	this->a = (float) p.a / 255;
+
 }
 Pixel32::Pixel32(const Pixel& p)
 {
+	this->r = p.r * 255;
+	this->g = p.g * 255;
+	this->b = p.b * 255;
+	this->a = p.a * 255;
 }
 
 int Image32::AddRandomNoise(const float& noise,Image32& outputImage) const
 {
-	return 0;
+	//get current object with *this
+	outputImage = *this;
+	unsigned char rangeNoise = noise * 255;
+	int height = this->height();
+	int width = this->width();
+
+	for (int i = 0; i < width; i++) {
+		for (int j = 0; j < height; j++) {
+			int amountNoiseR = rand() % (2 * rangeNoise + 1) + (-rangeNoise);
+			int amountNoiseG = rand() % (2 * rangeNoise + 1) + (-rangeNoise);
+			int amountNoiseB = rand() % (2 * rangeNoise + 1) + (-rangeNoise);
+			int amountNoiseA = rand() % (2 * rangeNoise + 1) + (-rangeNoise);
+			Pixel32 &pixel = outputImage.pixel(i, j);
+			pixel.r = rangeClamp(0, 255, pixel.r + amountNoiseR);
+			pixel.g = rangeClamp(0, 255, pixel.g + amountNoiseG);
+			pixel.b = rangeClamp(0, 255, pixel.b + amountNoiseB);
+			pixel.a = rangeClamp(0, 255, pixel.a + amountNoiseA);
+
+		}
+	}
+	
+	return 1;
 }
+
 int Image32::Brighten(const float& brightness,Image32& outputImage) const
 {
 	return 0;

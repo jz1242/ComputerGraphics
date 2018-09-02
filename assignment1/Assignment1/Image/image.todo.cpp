@@ -68,7 +68,6 @@ int Image32::Brighten(const float& brightness,Image32& outputImage) const
 			pixel.g = rangeClamp(0, 255, pixel.g*brightness);
 			pixel.b = rangeClamp(0, 255, pixel.b*brightness);
 			pixel.a = rangeClamp(0, 255, pixel.a*brightness);
-
 		}
 	}
 	return 1;
@@ -86,7 +85,6 @@ int Image32::Luminance(Image32& outputImage) const
 			pixel.r = newVal;
 			pixel.g = newVal;
 			pixel.b = newVal;
-
 		}
 	}
 	return 1;
@@ -94,7 +92,27 @@ int Image32::Luminance(Image32& outputImage) const
 
 int Image32::Contrast(const float& contrast,Image32& outputImage) const
 {
-	return 0;
+	outputImage = *this;
+	int height = this->height();
+	int width = this->width();
+	int total = height * width;
+	float sum = 0;
+	for (int i = 0; i < width; i++) {
+		for (int j = 0; j < height; j++) {
+			Pixel32 &pixel = outputImage.pixel(i, j);
+			sum += pixel.r*0.3 + pixel.g*0.59 + pixel.b*0.11;
+		}
+	}
+	float avg = sum / total;
+	for (int i = 0; i < width; i++) {
+		for (int j = 0; j < height; j++) {
+			Pixel32 &pixel = outputImage.pixel(i, j);
+			pixel.r = rangeClamp(0, 255, ((pixel.r - avg)*contrast + avg));
+			pixel.g = rangeClamp(0, 255, ((pixel.g - avg)*contrast + avg));
+			pixel.b = rangeClamp(0, 255, ((pixel.b - avg)*contrast + avg));
+		}
+	}
+	return 1;
 }
 
 int Image32::Saturate(const float& saturation,Image32& outputImage) const

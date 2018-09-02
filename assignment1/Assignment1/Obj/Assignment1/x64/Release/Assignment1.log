@@ -1,7 +1,0 @@
-﻿  image.todo.cpp
-d:\github\computergraphics\assignment1\assignment1\image\image.todo.cpp(27): warning C4244: '=': conversion from 'float' to 'unsigned char', possible loss of data
-d:\github\computergraphics\assignment1\assignment1\image\image.todo.cpp(28): warning C4244: '=': conversion from 'float' to 'unsigned char', possible loss of data
-d:\github\computergraphics\assignment1\assignment1\image\image.todo.cpp(29): warning C4244: '=': conversion from 'float' to 'unsigned char', possible loss of data
-d:\github\computergraphics\assignment1\assignment1\image\image.todo.cpp(30): warning C4244: '=': conversion from 'float' to 'unsigned char', possible loss of data
-d:\github\computergraphics\assignment1\assignment1\image\image.todo.cpp(37): warning C4244: 'initializing': conversion from 'float' to 'unsigned char', possible loss of data
-  Assignment1.vcxproj -> D:\github\computergraphics\assignment1\Assignment1\x64\Release\Assignment1.exe

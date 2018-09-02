@@ -61,7 +61,6 @@ int Image32::Brighten(const float& brightness,Image32& outputImage) const
 	outputImage = *this;
 	int height = this->height();
 	int width = this->width();
-
 	for (int i = 0; i < width; i++) {
 		for (int j = 0; j < height; j++) {
 			Pixel32 &pixel = outputImage.pixel(i, j);
@@ -77,7 +76,20 @@ int Image32::Brighten(const float& brightness,Image32& outputImage) const
 
 int Image32::Luminance(Image32& outputImage) const
 {
-	return 0;
+	outputImage = *this;
+	int height = this->height();
+	int width = this->width();
+	for (int i = 0; i < width; i++) {
+		for (int j = 0; j < height; j++) {
+			Pixel32 &pixel = outputImage.pixel(i, j);
+			int newVal = rangeClamp(0, 255, pixel.r*0.3 + pixel.g*0.59 + pixel.b*0.11);
+			pixel.r = newVal;
+			pixel.g = newVal;
+			pixel.b = newVal;
+
+		}
+	}
+	return 1;
 }
 
 int Image32::Contrast(const float& contrast,Image32& outputImage) const

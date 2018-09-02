@@ -58,7 +58,21 @@ int Image32::AddRandomNoise(const float& noise,Image32& outputImage) const
 
 int Image32::Brighten(const float& brightness,Image32& outputImage) const
 {
-	return 0;
+	outputImage = *this;
+	int height = this->height();
+	int width = this->width();
+
+	for (int i = 0; i < width; i++) {
+		for (int j = 0; j < height; j++) {
+			Pixel32 &pixel = outputImage.pixel(i, j);
+			pixel.r = rangeClamp(0, 255, pixel.r*brightness);
+			pixel.g = rangeClamp(0, 255, pixel.g*brightness);
+			pixel.b = rangeClamp(0, 255, pixel.b*brightness);
+			pixel.a = rangeClamp(0, 255, pixel.a*brightness);
+
+		}
+	}
+	return 1;
 }
 
 int Image32::Luminance(Image32& outputImage) const

@@ -135,8 +135,25 @@ int Image32::Saturate(const float& saturation,Image32& outputImage) const
 }
 
 int Image32::Quantize(const int& bits,Image32& outputImage) const
-{
-	return 0;
+{	
+	int val = 1 << (bits);
+	float conversion = 1 << (8 - bits);
+	outputImage = *this;
+	int height = this->height();
+	int width = this->width();
+	int total = height * width;
+
+	for (int i = 0; i < width; i++) {
+		for (int j = 0; j < height ; j++) {
+			Pixel32 &pixel = outputImage.pixel(i, j);
+
+			pixel.r = rangeClamp(0, 255, floor((((float) pixel.r / 256)) * val) * conversion);
+			pixel.g = rangeClamp(0, 255, floor((((float) pixel.g / 256)) * val) * conversion);
+			pixel.b = rangeClamp(0, 255, floor((((float) pixel.b / 256)) * val) * conversion);
+
+		}
+	}
+	return 1;
 }
 
 int Image32::RandomDither(const int& bits,Image32& outputImage) const

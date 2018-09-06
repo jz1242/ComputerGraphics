@@ -33,7 +33,9 @@ int distance(int boundary, int value, int bucketSize) {
 			break;
 		}
 	}
-	return boundaryValues[pick];
+	int toRet = boundaryValues[pick];
+	delete[] boundaryValues;
+	return toRet;
 }
 Pixel::Pixel(const Pixel32& p)
 {
@@ -179,7 +181,24 @@ int Image32::Quantize(const int& bits,Image32& outputImage) const
 
 int Image32::RandomDither(const int& bits,Image32& outputImage) const
 {
-	return 0;
+	this->AddRandomNoise(1.0 / (1 << bits), outputImage);
+	int val = (1 << (bits)) - 1;
+	int boundary = 256 / val;
+	int bucketSize = 256 / (1 << (bits));
+	int conversion = 1 << (8 - bits);
+	int height = this->height();
+	int width = this->width();
+	int total = height * width;
+
+	for (int i = 0; i < width; i++) {
+		for (int j = 0; j < height; j++) {
+			Pixel32 &pixel = outputImage.pixel(i, j);
+			pixel.r = distance(boundary, pixel.r, bucketSize);
+			pixel.g = distance(boundary, pixel.g, bucketSize);
+			pixel.b = distance(boundary, pixel.b, bucketSize);
+		}
+	}
+	return 1;
 }
 int Image32::OrderedDither2X2(const int& bits,Image32& outputImage) const
 {

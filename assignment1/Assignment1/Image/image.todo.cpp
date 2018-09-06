@@ -13,7 +13,28 @@ int rangeClamp(int low, int high, int val) {
 	}
 	return val;
 }
-
+int distance(int boundary, int value, int bucketSize) {
+	int len = 256 / boundary;
+	
+	int* boundaryValues = new int[len];
+	int count = 1;
+	int ind = 1;
+	boundaryValues[0] = 0;
+	while (boundary * count < 255) {
+		boundaryValues[count] = boundary * count;
+		count++;
+	}
+	boundaryValues[count] = 255;
+	
+	int pick = 0;
+	for (int i = 1; i <= count + 1; i++) {
+		if (value <= bucketSize * i) {
+			pick = (i - 1);
+			break;
+		}
+	}
+	return boundaryValues[pick];
+}
 Pixel::Pixel(const Pixel32& p)
 {
 	this->r = (float) p.r / 255;
@@ -136,21 +157,21 @@ int Image32::Saturate(const float& saturation,Image32& outputImage) const
 
 int Image32::Quantize(const int& bits,Image32& outputImage) const
 {	
-	int val = 1 << (bits);
-	float conversion = 1 << (8 - bits);
+	int val = (1 << (bits)) - 1;
+	int boundary = 256/val;
+	int bucketSize = 256 / (1 << (bits));
+	int conversion = 1 << (8 - bits);
 	outputImage = *this;
 	int height = this->height();
 	int width = this->width();
 	int total = height * width;
 
 	for (int i = 0; i < width; i++) {
-		for (int j = 0; j < height ; j++) {
+		for (int j = 0; j < height; j++) {
 			Pixel32 &pixel = outputImage.pixel(i, j);
-
-			pixel.r = rangeClamp(0, 255, floor((((float) pixel.r / 256)) * val) * conversion);
-			pixel.g = rangeClamp(0, 255, floor((((float) pixel.g / 256)) * val) * conversion);
-			pixel.b = rangeClamp(0, 255, floor((((float) pixel.b / 256)) * val) * conversion);
-
+			pixel.r = distance(boundary, pixel.r, bucketSize);
+			pixel.g = distance(boundary, pixel.g, bucketSize);
+			pixel.b = distance(boundary, pixel.b, bucketSize);
 		}
 	}
 	return 1;

@@ -38,13 +38,26 @@ int distance(int boundary, int value, int bucketSize) {
 	delete[] boundaryValues;
 	return toRet;
 }
+int ditherRounding(int x, int y, int value, int mat[2][2], double bits) {
+	float dec = (float(value) / 255) * bits;
+	float fractional = dec - floor(dec);
+	int i = x % 2;
+	int j = y % 2;
+	if (fractional > (mat[i][j] / (pow(2, 2) + 1))) {
+		return ceil(dec)/bits*255;
+	}
+	else {
+		return floor(dec)/bits*255;
+	}
+
+}
+
 Pixel::Pixel( const Pixel32& p )
 {
 	this->r = (float)p.r / 255;
 	this->g = (float)p.g / 255;
 	this->b = (float)p.b / 255;
 	this->a = (float)p.a / 255;
-	throw ImageException( "Pixel::Pixel undefined" );
 }
 Pixel32::Pixel32( const Pixel& p )
 {
@@ -52,7 +65,6 @@ Pixel32::Pixel32( const Pixel& p )
 	this->g = p.g * 255;
 	this->b = p.b * 255;
 	this->a = p.a * 255;
-	throw ImageException( "Pixel32::Pixel32 undefined" );
 }
 
 Image32 Image32::addRandomNoise( float noise ) const
@@ -164,6 +176,7 @@ Image32 Image32::quantize( int bits ) const
 	int boundary = 256 / val;
 	int bucketSize = 256 / (1 << (bits));
 	int conversion = 1 << (8 - bits);
+
 	Image32 outputImage = *this;
 	int height = this->height();
 	int width = this->width();
@@ -181,21 +194,83 @@ Image32 Image32::quantize( int bits ) const
 }
 
 Image32 Image32::randomDither( int bits ) const
-{
-	
+{	
 	Image32 outputImage = this->addRandomNoise(1.0 / (1 << bits)).quantize(bits);
 	return outputImage;
 }
 Image32 Image32::orderedDither2X2( int bits ) const
 {
-	throw ImageException( "Image32::orderedDither2x2 undefined" );
-	return Image32();
+	Image32 outputImage = *this;
+	double val = (1 << (bits)) - 1;
+
+	int mat[2][2] = { 1, 3, 4, 2 };
+	int height = this->height();
+	int width = this->width();
+
+
+	for (int i = 0; i < width; i++) {
+		for (int j = 0; j < height; j++) {
+			Pixel32 &pixel = outputImage(i, j);
+			pixel.r = ditherRounding(i, j, pixel.r, mat, val);
+			pixel.g = ditherRounding(i, j, pixel.g, mat, val);
+			pixel.b = ditherRounding(i, j, pixel.b, mat, val);
+		}
+	}
+	return outputImage;
 }
 
 Image32 Image32::floydSteinbergDither( int bits ) const
 {
-	throw ImageException( "Image32::floydSteinbergDither undefined" );
-	return Image32();
+	Image32 outputImage = *this;
+	int val = (1 << (bits)) - 1;
+	int boundary = 256 / val;
+	int bucketSize = 256 / (1 << (bits));
+	int conversion = 1 << (8 - bits);
+
+	int mat[2][2] = { 1, 3, 4, 2 };
+	int height = this->height();
+	int width = this->width();
+	float alpha = 7 / 16.0;
+	float beta = 3 / 16.0;
+	float gamma = 5 / 16.0;
+	float delta = 1 / 16.0;
+
+	for (int i = 0; i < width; i++) {
+		for (int j = 0; j < height; j++) {
+			Pixel32 &pixel = outputImage(i, j);
+
+			int destR = distance(boundary, pixel.r, bucketSize);
+			int destG = distance(boundary, pixel.g, bucketSize);
+			int destB = distance(boundary, pixel.b, bucketSize);
+			int errorR = pixel.r - destR;
+			int errorG = pixel.g - destG;
+			int errorB = pixel.b - destB;
+			pixel.r = destR;
+			pixel.g = destG;
+			pixel.b = destB;
+			if (j + 1 < height) {
+				outputImage(i, j + 1).r = rangeClamp(0, 255, outputImage(i, j + 1).r + (alpha*errorR));
+				outputImage(i, j + 1).g = rangeClamp(0, 255, outputImage(i, j + 1).g + (alpha*errorG));
+				outputImage(i, j + 1).b = rangeClamp(0, 255, outputImage(i, j + 1).b + (alpha*errorB));
+			}
+			if (i + 1 < width && j - 1 > 0) {
+				outputImage(i + 1, j - 1).r = rangeClamp(0, 255, outputImage(i + 1, j - 1).r + (beta*errorR));
+				outputImage(i + 1, j - 1).g = rangeClamp(0, 255, outputImage(i + 1, j - 1).g + (beta*errorG));
+				outputImage(i + 1, j - 1).b = rangeClamp(0, 255, outputImage(i + 1, j - 1).b + (beta*errorB));
+			}
+			if (i + 1 < height) {
+				outputImage(i + 1, j).r = rangeClamp(0, 255, outputImage(i + 1, j).r + (gamma*errorR));
+				outputImage(i + 1, j).g = rangeClamp(0, 255, outputImage(i + 1, j).g + (gamma*errorG));
+				outputImage(i + 1, j).b = rangeClamp(0, 255, outputImage(i + 1, j).b + (gamma*errorB));
+			}
+			if (i + 1 < width && j + 1 < height) {
+				outputImage(i + 1, j + 1).r = rangeClamp(0, 255, outputImage(i + 1, j + 1).r + (delta*errorR));
+				outputImage(i + 1, j + 1).g = rangeClamp(0, 255, outputImage(i + 1, j + 1).g + (delta*errorG));
+				outputImage(i + 1, j + 1).b = rangeClamp(0, 255, outputImage(i + 1, j + 1).b + (delta*errorB));
+			}
+		}
+	}
+	return outputImage;
 }
 
 Image32 Image32::blur3X3( void ) const

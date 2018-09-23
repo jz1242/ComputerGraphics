@@ -253,7 +253,7 @@ Image32 Image32::floydSteinbergDither( int bits ) const
 				outputImage(i, j + 1).g = rangeClamp(0, 255, outputImage(i, j + 1).g + (alpha*errorG));
 				outputImage(i, j + 1).b = rangeClamp(0, 255, outputImage(i, j + 1).b + (alpha*errorB));
 			}
-			if (i + 1 < width && j - 1 > 0) {
+			if (i + 1 < width && j - 1 >= 0) {
 				outputImage(i + 1, j - 1).r = rangeClamp(0, 255, outputImage(i + 1, j - 1).r + (beta*errorR));
 				outputImage(i + 1, j - 1).g = rangeClamp(0, 255, outputImage(i + 1, j - 1).g + (beta*errorG));
 				outputImage(i + 1, j - 1).b = rangeClamp(0, 255, outputImage(i + 1, j - 1).b + (beta*errorB));
@@ -275,14 +275,142 @@ Image32 Image32::floydSteinbergDither( int bits ) const
 
 Image32 Image32::blur3X3( void ) const
 {
-	throw ImageException( "Image32::blur3X3 undefined" );
-	return Image32();
+	Image32 outputImage = *this;
+	float mat[3][3] = { 1/16.0, 2/16.0, 1/16.0, 2/16.0, 4/16.0, 2/16.0, 1/16.0, 2/16.0, 1/16.0 };
+	int height = this->height();
+	int width = this->width();
+	for (int i = 0; i < width; i++) {
+		for (int j = 0; j < height; j++) {
+			Pixel32 &pixel = outputImage(i, j);
+			float sumR = pixel.r*mat[1][1];
+			float sumG = pixel.g*mat[1][1];
+			float sumB = pixel.b*mat[1][1];
+			if (i - 1 >= 0 && j - 1 >= 0) {
+				sumR += outputImage(i - 1, j - 1).r * mat[0][0];
+				sumG += outputImage(i - 1, j - 1).g * mat[0][0];
+				sumB += outputImage(i - 1, j - 1).b * mat[0][0];
+			}
+			if (j - 1 >= 0) {
+				sumR += outputImage(i, j - 1).r * mat[0][1];
+				sumG += outputImage(i, j - 1).g * mat[0][1];
+				sumB += outputImage(i, j - 1).b * mat[0][1];
+			}
+			if (j - 1 >= 0 && i + 1 < width) {
+				sumR += outputImage(i + 1, j - 1).r * mat[0][2];
+				sumG += outputImage(i + 1, j - 1).g * mat[0][2];
+				sumB += outputImage(i + 1, j - 1).b * mat[0][2];
+			}
+			if (i - 1 >= 0) {
+				sumR += outputImage(i - 1, j).r * mat[1][0];
+				sumG += outputImage(i - 1, j).g * mat[1][0];
+				sumB += outputImage(i - 1, j).b * mat[1][0];
+			}
+			
+			if (i + 1 < width) {
+				sumR += outputImage(i + 1, j).r * mat[1][2];
+				sumG += outputImage(i + 1, j).g * mat[1][2];
+				sumB += outputImage(i + 1, j).b * mat[1][2];
+
+			}
+			if (i - 1 >= 0 && j + 1 < height) {
+				sumR += outputImage(i - 1, j + 1).r * mat[2][0];
+				sumG += outputImage(i - 1, j + 1).g * mat[2][0];
+				sumB += outputImage(i - 1, j + 1).b * mat[2][0];
+
+			}
+			if (j + 1 < height) {
+				sumR += outputImage(i, j + 1).r * mat[2][1];
+				sumG += outputImage(i, j + 1).g * mat[2][1];
+				sumB += outputImage(i, j + 1).b * mat[2][1];
+			}
+			if (i + 1 < width && j + 1 < height) {
+				sumR += outputImage(i + 1, j + 1).r * mat[2][2];
+				sumG += outputImage(i + 1, j + 1).g * mat[2][2];
+				sumB += outputImage(i + 1, j + 1).b * mat[2][2];
+			}
+			pixel.r = round(sumR);
+			pixel.g = round(sumG);
+			pixel.b = round(sumB);
+		}
+	}
+	return outputImage;
 }
 
 Image32 Image32::edgeDetect3X3( void ) const
 {
-	throw ImageException( "Image32::edgeDetect3X3 undefined" );
-	return Image32();
+	Image32 outputImage = *this;
+	Image32 temp = *this;
+	int mat[3][3] = { -1, -1, -1, -1, 1, -1, -1, -1, -1 };
+	int height = this->height();
+	int width = this->width();
+	for (int i = 0; i < width; i++) {
+		for (int j = 0; j < height; j++) {
+			Pixel32 &pixel = outputImage(i, j);
+			int sumR = 0;
+			int sumG = 0;
+			int sumB = 0;
+			int count = 0;
+			if (i - 1 >= 0 && j - 1 >= 0) {
+				sumR += temp(i - 1, j - 1).r * mat[0][0];
+				sumG += temp(i - 1, j - 1).g * mat[0][0];
+				sumB += temp(i - 1, j - 1).b * mat[0][0];
+				count++;
+			}
+			if (j - 1 >= 0) {
+				sumR += temp(i, j - 1).r * mat[0][1];
+				sumG += temp(i, j - 1).g * mat[0][1];
+				sumB += temp(i, j - 1).b * mat[0][1];
+				count++;
+			}
+			if (j - 1 >= 0 && i + 1 < width) {
+				sumR += temp(i + 1, j - 1).r * mat[0][2];
+				sumG += temp(i + 1, j - 1).g * mat[0][2];
+				sumB += temp(i + 1, j - 1).b * mat[0][2];
+				count++;
+			}
+			if (i - 1 >= 0) {
+				sumR += temp(i - 1, j).r * mat[1][0];
+				sumG += temp(i - 1, j).g * mat[1][0];
+				sumB += temp(i - 1, j).b * mat[1][0];
+				count++;
+			}
+
+			if (i + 1 < width) {
+				sumR += temp(i + 1, j).r * mat[1][2];
+				sumG += temp(i + 1, j).g * mat[1][2];
+				sumB += temp(i + 1, j).b * mat[1][2];
+				count++;
+
+			}
+			if (i - 1 >= 0 && j + 1 < height) {
+				sumR += temp(i - 1, j + 1).r * mat[2][0];
+				sumG += temp(i - 1, j + 1).g * mat[2][0];
+				sumB += temp(i - 1, j + 1).b * mat[2][0];
+				count++;
+
+			}
+			if (j + 1 < height) {
+				sumR += temp(i, j + 1).r * mat[2][1];
+				sumG += temp(i, j + 1).g * mat[2][1];
+				sumB += temp(i, j + 1).b * mat[2][1];
+				count++;
+			}
+			if (i + 1 < width && j + 1 < height) {
+				sumR += temp(i + 1, j + 1).r * mat[2][2];
+				sumG += temp(i + 1, j + 1).g * mat[2][2];
+				sumB += temp(i + 1, j + 1).b * mat[2][2];
+				count++;
+			}
+			sumR += pixel.r*mat[1][1]*count;
+			sumG += pixel.g*mat[1][1]*count;
+			sumB += pixel.b*mat[1][1]*count;
+			pixel.r = rangeClamp(0, 255, sumR);
+			pixel.g = rangeClamp(0, 255, sumG);
+			pixel.b = rangeClamp(0, 255, sumB);
+
+		}
+	}
+	return outputImage;
 }
 Image32 Image32::scaleNearest( float scaleFactor ) const
 {

@@ -414,14 +414,61 @@ Image32 Image32::edgeDetect3X3( void ) const
 }
 Image32 Image32::scaleNearest( float scaleFactor ) const
 {
-	throw ImageException( "Image32::scaleNearest undefined" );
-	return Image32();
+	Image32 tmp = *this;
+	Image32 outputImage = Image32();
+	int height = this->height();
+	int width = this->width();
+	outputImage.setSize(height*scaleFactor, width*scaleFactor);
+	for (int i = 0; i < height*scaleFactor; i++) {
+		for (int j = 0; j < width*scaleFactor; j++) {
+			int iu = (int)floor(i/scaleFactor);
+			int iv = (int)floor(j/scaleFactor);
+			Pixel32 &pixel = outputImage(i, j);
+			Pixel32 &oldPixel = tmp(iu, iv);
+			pixel.r = oldPixel.r;
+			pixel.g = oldPixel.g;
+			pixel.b = oldPixel.b;
+		}
+	}
+	return outputImage;
 }
 
 Image32 Image32::scaleBilinear( float scaleFactor ) const
 {
-	throw ImageException( "Image32::scaleBilinear undefined" );
-	return Image32();
+	Image32 tmp = *this;
+	Image32 outputImage = Image32();
+	int height = this->height();
+	int width = this->width();
+	outputImage.setSize(height*scaleFactor, width*scaleFactor);
+	for (int i = 0; i < height*scaleFactor; i++) {
+		for (int j = 0; j < width*scaleFactor; j++) {
+			float u = (i / scaleFactor);
+			float v = (j / scaleFactor);
+			int u1 = floor(u);
+			int v1 = floor(v);
+			int u2 = u1 + 1;
+			int v2 = v1 + 1;
+			float du = u - u1;
+			float ar = 0;
+			float ag = 0;
+			float ab = 0;
+			float br = 0;
+			float bg = 0;
+			float bb = 0;
+			ar = tmp(u1 % height, v1 % width).r*(1 - du) + tmp(u2 % height, v1 % width).r*(du);
+			ag = tmp(u1 % height, v1 % width).g*(1 - du) + tmp(u2 % height, v1 % width).g*(du);
+			ab = tmp(u1 % height, v1 % width).b*(1 - du) + tmp(u2 % height, v1 % width).b*(du);
+			br = tmp(u1 % height, v2 % width).r*(1 - du) + tmp(u2 % height, v2 % width).r*(du);
+			bg = tmp(u1 % height, v2 % width).g*(1 - du) + tmp(u2 % height, v2 % width).g*(du);
+			bb = tmp(u1 % height, v2 % width).b*(1 - du) + tmp(u2 % height, v2 % width).b*(du);
+			float dv = v - v1;
+			Pixel32 &pixel = outputImage(i, j);
+			pixel.r = ar * (1 - dv) + (br*dv);
+			pixel.g = ag * (1 - dv) + (bg*dv);
+			pixel.b = ab * (1 - dv) + (bb*dv);
+		}
+	}
+	return outputImage;
 }
 
 Image32 Image32::scaleGaussian( float scaleFactor ) const
@@ -497,3 +544,4 @@ Pixel32 Image32::gaussianSample( float x , float y , float variance , float radi
 	throw ImageException( "Image32::gaussianSample undefined" );
 	return Pixel32();
 }
+

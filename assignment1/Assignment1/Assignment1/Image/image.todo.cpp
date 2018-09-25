@@ -69,7 +69,6 @@ Pixel32::Pixel32( const Pixel& p )
 
 Image32 Image32::addRandomNoise( float noise ) const
 {
-	//get current object with *this
 	Image32 outputImage = *this;
 	unsigned char rangeNoise = noise * 255;
 	int height = this->height();
@@ -473,8 +472,25 @@ Image32 Image32::scaleBilinear( float scaleFactor ) const
 
 Image32 Image32::scaleGaussian( float scaleFactor ) const
 {
-	throw ImageException( "Image32::scaleGaussian undefined" );
-	return Image32();
+	Image32 tmp = *this;
+	Image32 outputImage = Image32();
+	int height = this->height();
+	int width = this->width();
+	float variance = pow(1 / scaleFactor, 2);
+	float radius = (3 * (1 / scaleFactor));
+	outputImage.setSize(height*scaleFactor, width*scaleFactor);
+	for (int i = 0; i < height*scaleFactor; i++) {
+		for (int j = 0; j < width*scaleFactor; j++) {
+			float u = (i / scaleFactor);
+			float v = (j / scaleFactor);
+			Pixel32 temp = gaussianSample(u, v, variance, radius);
+			Pixel32 &pixel = outputImage(i, j);
+			pixel.r = temp.r;
+			pixel.g = temp.g;
+			pixel.b = temp.b;
+		}
+	}
+	return outputImage;
 }
 
 Image32 Image32::rotateNearest( float angle ) const
@@ -541,7 +557,36 @@ Pixel32 Image32::bilinearSample( float x , float y ) const
 }
 Pixel32 Image32::gaussianSample( float x , float y , float variance , float radius ) const
 {
-	throw ImageException( "Image32::gaussianSample undefined" );
-	return Pixel32();
+	Image32 orig = *this;
+	Pixel32 &pixel = orig(x, y);
+	Pixel32 output;
+	int lower_row = x - radius >= 0 ? x - radius : 0;
+	int upper_row = x + radius + 0.5 < orig.width() ? x + radius : orig.width();
+	int lower_col = y - radius >= 0 ? y - radius : 0;
+	int upper_col = y + radius + 0.5 < orig.height() ? y + radius : orig.height();
+	float total = 0;
+	float r = 0;
+	float g = 0;
+	float b = 0;
+	for (int i = lower_row; i < upper_row; i++) {
+		for (int j = lower_col; j < upper_col; j++) {
+			Pixel32 &pixel = orig(i, j);
+			float di = (i - x);
+			float dj = (j - y);
+			float gaussian = exp((-(pow(di, 2) + pow(dj, 2))) / (2 * variance));
+			total += gaussian;
+			r += pixel.r * gaussian;
+			g += pixel.g * gaussian;
+			b += pixel.b * gaussian;
+
+		}
+	}
+	output.r = r / total;
+	output.g = g / total;
+	output.b = b / total;
+
+
+	return output;
 }
+
 

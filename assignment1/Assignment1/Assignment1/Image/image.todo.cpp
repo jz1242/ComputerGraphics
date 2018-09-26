@@ -5,6 +5,12 @@
 ////////////////////////////
 // Image processing stuff //
 ////////////////////////////
+float rotateX(float u, float v, float angle) {
+	return u * cos(angle) - v * sin(angle);
+}
+float rotateY(float u, float v, float angle) {
+	return u * sin(angle) + v * cos(angle);
+}
 int rangeClamp(int low, int high, int val) {
 	if (val < low) {
 		return low;
@@ -420,13 +426,13 @@ Image32 Image32::scaleNearest( float scaleFactor ) const
 	outputImage.setSize(height*scaleFactor, width*scaleFactor);
 	for (int i = 0; i < height*scaleFactor; i++) {
 		for (int j = 0; j < width*scaleFactor; j++) {
-			int iu = (int)floor(i/scaleFactor);
-			int iv = (int)floor(j/scaleFactor);
+			float iu = i/scaleFactor;
+			float iv = j/scaleFactor;
 			Pixel32 &pixel = outputImage(i, j);
-			Pixel32 &oldPixel = tmp(iu, iv);
-			pixel.r = oldPixel.r;
-			pixel.g = oldPixel.g;
-			pixel.b = oldPixel.b;
+			Pixel32 sample = nearestSample(iu, iv);
+			pixel.r = sample.r;
+			pixel.g = sample.g;
+			pixel.b = sample.b;
 		}
 	}
 	return outputImage;
@@ -443,28 +449,8 @@ Image32 Image32::scaleBilinear( float scaleFactor ) const
 		for (int j = 0; j < width*scaleFactor; j++) {
 			float u = (i / scaleFactor);
 			float v = (j / scaleFactor);
-			int u1 = floor(u);
-			int v1 = floor(v);
-			int u2 = u1 + 1;
-			int v2 = v1 + 1;
-			float du = u - u1;
-			float ar = 0;
-			float ag = 0;
-			float ab = 0;
-			float br = 0;
-			float bg = 0;
-			float bb = 0;
-			ar = tmp(u1 % height, v1 % width).r*(1 - du) + tmp(u2 % height, v1 % width).r*(du);
-			ag = tmp(u1 % height, v1 % width).g*(1 - du) + tmp(u2 % height, v1 % width).g*(du);
-			ab = tmp(u1 % height, v1 % width).b*(1 - du) + tmp(u2 % height, v1 % width).b*(du);
-			br = tmp(u1 % height, v2 % width).r*(1 - du) + tmp(u2 % height, v2 % width).r*(du);
-			bg = tmp(u1 % height, v2 % width).g*(1 - du) + tmp(u2 % height, v2 % width).g*(du);
-			bb = tmp(u1 % height, v2 % width).b*(1 - du) + tmp(u2 % height, v2 % width).b*(du);
-			float dv = v - v1;
-			Pixel32 &pixel = outputImage(i, j);
-			pixel.r = ar * (1 - dv) + (br*dv);
-			pixel.g = ag * (1 - dv) + (bg*dv);
-			pixel.b = ab * (1 - dv) + (bb*dv);
+			Pixel32 &pixel = outputImage(i, j); 
+			pixel = bilinearSample(u, v);
 		}
 	}
 	return outputImage;
@@ -492,23 +478,138 @@ Image32 Image32::scaleGaussian( float scaleFactor ) const
 	}
 	return outputImage;
 }
-
 Image32 Image32::rotateNearest( float angle ) const
 {
-	throw ImageException( "Image32::rotateNearest undefined" );
-	return Image32();
+	float rad = angle * PI / 180.0;
+	int orig_width = this->width();
+	int orig_height = this->height();
+	int width = orig_width * abs(cos(rad)) + orig_height * abs(sin(rad)); 
+	int height = orig_width * abs(sin(rad)) + orig_height * abs(cos(rad));
+	Image32 outputImage = Image32();
+	outputImage.setSize(width, height);
+	float dx = 0;
+	float dy = 0;
+	if (angle >= 0 && angle < 90) {
+		dx = rotateX(0, orig_height, rad);
+		dy = rotateY(orig_width, orig_height,rad);
+	}
+	else if (angle >= 90 && angle < 180) {
+		dx = rotateX(orig_width, orig_height, rad);
+		dy = rotateY(orig_width, 0, rad);
+	}
+	else if (angle >= 180 && angle < 270) {
+		dx = rotateX(orig_width, 0, rad);
+		dy = rotateY(0, 0, rad);
+	}
+	else {
+		dx = rotateX(0, 0, rad);
+		dy = rotateY(0, orig_height, rad);
+	}
+
+	for (int i = 0; i < width; i++) {
+		for (int j = 0; j < height; j++) {
+			float x = i + dx;
+			float y = dy - j;
+			float u = x * cos(-1*rad) - y * sin(-1*rad);
+			float v = orig_height - (x * sin(-1*rad) + y * cos(-1*rad));
+			if (u >= 0 && u < orig_width && v >= 0 && v < orig_height) {
+				Pixel32 &pixel = outputImage(i, j);
+				pixel = nearestSample(u, v);
+			}
+		}
+	}
+
+	return outputImage;
 }
 
 Image32 Image32::rotateBilinear( float angle ) const
 {
-	throw ImageException( "Image32::rotateBilinear undefined" );
-	return Image32();
+	float rad = angle * PI / 180.0;
+	int orig_width = this->width();
+	int orig_height = this->height();
+	int width = orig_width * abs(cos(rad)) + orig_height * abs(sin(rad));
+	int height = orig_width * abs(sin(rad)) + orig_height * abs(cos(rad));
+	Image32 outputImage = Image32();
+	outputImage.setSize(width, height);
+	float dx = 0;
+	float dy = 0;
+	if (angle >= 0 && angle < 90) {
+		dx = rotateX(0, orig_height, rad);
+		dy = rotateY(orig_width, orig_height, rad);
+	}
+	else if (angle >= 90 && angle < 180) {
+		dx = rotateX(orig_width, orig_height, rad);
+		dy = rotateY(orig_width, 0, rad);
+	}
+	else if (angle >= 180 && angle < 270) {
+		dx = rotateX(orig_width, 0, rad);
+		dy = rotateY(0, 0, rad);
+	}
+	else {
+		dx = rotateX(0, 0, rad);
+		dy = rotateY(0, orig_height, rad);
+	}
+
+	for (int i = 0; i < width; i++) {
+		for (int j = 0; j < height; j++) {
+			float x = i + dx;
+			float y = dy - j;
+			float u = x * cos(-1 * rad) - y * sin(-1 * rad);
+			float v = orig_height - (x * sin(-1 * rad) + y * cos(-1 * rad));
+			if (u >= 0 && u < orig_width && v >= 0 && v < orig_height) {
+				Pixel32 &pixel = outputImage(i, j);
+				pixel = bilinearSample(u, v);
+			}
+		}
+	}
+
+	return outputImage;
 }
 	
 Image32 Image32::rotateGaussian( float angle ) const
 {
-	throw ImageException( "Image32::rotateGaussian undefined" );
-	return Image32();
+	float variance = 1;
+	float radius = 3;
+	float rad = angle * PI / 180.0;
+	int orig_width = this->width();
+	int orig_height = this->height();
+	int width = orig_width * abs(cos(rad)) + orig_height * abs(sin(rad));
+	int height = orig_width * abs(sin(rad)) + orig_height * abs(cos(rad));
+	Image32 outputImage = Image32();
+	outputImage.setSize(width, height);
+	float dx = 0;
+	float dy = 0;
+	if (angle >= 0 && angle < 90) {
+		dx = rotateX(0, orig_height, rad);
+		dy = rotateY(orig_width, orig_height, rad);
+	}
+	else if (angle >= 90 && angle < 180) {
+		dx = rotateX(orig_width, orig_height, rad);
+		dy = rotateY(orig_width, 0, rad);
+	}
+	else if (angle >= 180 && angle < 270) {
+		dx = rotateX(orig_width, 0, rad);
+		dy = rotateY(0, 0, rad);
+	}
+	else {
+		dx = rotateX(0, 0, rad);
+		dy = rotateY(0, orig_height, rad);
+	}
+
+	for (int i = 0; i < width; i++) {
+		for (int j = 0; j < height; j++) {
+			float x = i + dx;
+			float y = dy - j;
+			float u = x * cos(-1 * rad) - y * sin(-1 * rad);
+			float v = orig_height - (x * sin(-1 * rad) + y * cos(-1 * rad));
+			if (u >= 0 && u < orig_width && v >= 0 && v < orig_height) {
+				Pixel32 &pixel = outputImage(i, j);
+				pixel = gaussianSample(u, v, variance, radius);
+			}
+		}
+	}
+
+	return outputImage;
 }
 
 void Image32::setAlpha( const Image32& matte )
@@ -547,13 +648,40 @@ Image32 Image32::crop( int x1 , int y1 , int x2 , int y2 ) const
 
 Pixel32 Image32::nearestSample( float x , float y ) const
 {
-	throw ImageException( "Image32::nearestSample undefined" );
-	return Pixel32();
+	int iu = (int)floor(x);
+	int iv = (int)floor(y);
+	Image32 orig = *this;
+	Pixel32 &pixel = orig(iu, iv);
+	return pixel;
 }
 Pixel32 Image32::bilinearSample( float x , float y ) const
 {
-	throw ImageException( "Image32::bilinearSample undefined" );
-	return Pixel32();
+	Image32 tmp = *this;
+	int height = tmp.height();
+	int width = tmp.width();
+	int u1 = floor(x);
+	int v1 = floor(y);
+	int u2 = u1 + 1;
+	int v2 = v1 + 1;
+	float du = x - u1;
+	float ar = 0;
+	float ag = 0;
+	float ab = 0;
+	float br = 0;
+	float bg = 0;
+	float bb = 0;
+	ar = tmp(u1 % height, v1 % width).r*(1 - du) + tmp(u2 % height, v1 % width).r*(du);
+	ag = tmp(u1 % height, v1 % width).g*(1 - du) + tmp(u2 % height, v1 % width).g*(du);
+	ab = tmp(u1 % height, v1 % width).b*(1 - du) + tmp(u2 % height, v1 % width).b*(du);
+	br = tmp(u1 % height, v2 % width).r*(1 - du) + tmp(u2 % height, v2 % width).r*(du);
+	bg = tmp(u1 % height, v2 % width).g*(1 - du) + tmp(u2 % height, v2 % width).g*(du);
+	bb = tmp(u1 % height, v2 % width).b*(1 - du) + tmp(u2 % height, v2 % width).b*(du);
+	float dv = y - v1;
+	Pixel32 pixel;
+	pixel.r = ar * (1 - dv) + (br*dv);
+	pixel.g = ag * (1 - dv) + (bg*dv);
+	pixel.b = ab * (1 - dv) + (bb*dv);
+	return pixel;
 }
 Pixel32 Image32::gaussianSample( float x , float y , float variance , float radius ) const
 {
@@ -561,9 +689,9 @@ Pixel32 Image32::gaussianSample( float x , float y , float variance , float radi
 	Pixel32 &pixel = orig(x, y);
 	Pixel32 output;
 	int lower_row = x - radius >= 0 ? x - radius : 0;
-	int upper_row = x + radius + 0.5 < orig.width() ? x + radius : orig.width();
+	int upper_row = x + radius < orig.width() ? x + radius : orig.width();
 	int lower_col = y - radius >= 0 ? y - radius : 0;
-	int upper_col = y + radius + 0.5 < orig.height() ? y + radius : orig.height();
+	int upper_col = y + radius < orig.height() ? y + radius : orig.height();
 	float total = 0;
 	float r = 0;
 	float g = 0;

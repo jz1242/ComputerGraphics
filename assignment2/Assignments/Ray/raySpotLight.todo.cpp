@@ -15,8 +15,7 @@
 ////////////////////////
 Point3D RaySpotLight::getAmbient( Point3D cameraPosition , RayIntersectionInfo& iInfo )
 {
-	throw RayException( "RaySpotLight::getAmbient undefined" );
-	return Point3D();
+	return aColor * iInfo.material->ambient;
 }
 Point3D RaySpotLight::getDiffuse( Point3D cameraPosition , RayIntersectionInfo& iInfo )
 {

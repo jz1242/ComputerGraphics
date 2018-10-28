@@ -12,13 +12,29 @@
 ///////////////////////
 // Ray-tracing stuff //
 ///////////////////////
+double clamp(double val) {
+	if (val > 1) {
+		return 1;
+	}
+	if (val < 0) {
+		return 0;
+	}
+	return val;
+}
 
 Point3D RayScene::Reflect( Point3D v , Point3D n )
 {
-	throw RayException( "RayScene::Reflect undefined" );
-	return Point3D();
+	v = -v.unit();
+	n = n.unit();
+	double alpha = Point3D::Dot(v, n);
+	if (alpha > 1) {
+		alpha = 1;
+	}
+	if (alpha < 0) {
+		alpha = 0;
+	}
+	return (n * alpha * 2 - v).unit();
 }
-
 bool RayScene::Refract( Point3D v , Point3D n , double ir , Point3D& refract )
 {
 	throw RayException( "RayScene::Refract undefined" );
@@ -41,11 +57,33 @@ Ray3D RayScene::GetRay( RayCamera* camera , int i , int j , int width , int heig
 Point3D RayScene::getColor( Ray3D ray , int rDepth , Point3D cLimit )
 {
 	RayIntersectionInfo iInfo;
-	double ret = group->intersect(ray, iInfo, -1);
-	if (ret > 0) {
-		return Point3D(1, 1, 1);
+	double dist = group->intersect(ray, iInfo, -1);
+	if (group->intersect(ray, iInfo, -1) > 0) {
+		Point3D ret_val = iInfo.material->emissive;
+		for (int i = 0; i < lights.size(); i++) {
+			int inp = 0;
+			if (lights[i]->isInShadow(iInfo, group, inp) == false) {
+				ret_val += lights[i]->getAmbient(camera->position, iInfo) 
+					+ lights[i]->getDiffuse(camera->position, iInfo)
+					+ lights[i]->getSpecular(camera->position, iInfo);
+			}
+		}
+		if (rDepth > 0) {
+			Point3D specularity = iInfo.material->specular;
+			Point3D n = iInfo.normal;
+			Point3D v = ray.direction;
+			Point3D ref = Reflect(v, n);
+			Ray3D ray = Ray3D(iInfo.iCoordinate + ref * RAYEPS, ref.unit());
+			ret_val += specularity*getColor(ray, rDepth--, cLimit);
+		}
+		ret_val[0] = clamp(ret_val[0]);
+		ret_val[1] = clamp(ret_val[1]);
+		ret_val[2] = clamp(ret_val[2]);
+		return ret_val;
+
 	}
-	return Point3D(0,0,0);
+	return Point3D(0, 0, 0);
+
 }
 
 //////////////////

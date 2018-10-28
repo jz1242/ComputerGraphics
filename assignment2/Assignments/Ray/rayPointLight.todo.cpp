@@ -14,18 +14,15 @@
 ////////////////////////
 Point3D RayPointLight::getAmbient( Point3D cameraPosition , RayIntersectionInfo& iInfo )
 {
-	throw RayException( "RayPointLight::getAmbient undefined" );
-	return Point3D();
+	return iInfo.material->ambient * aColor;
 }
 Point3D RayPointLight::getDiffuse( Point3D cameraPosition , RayIntersectionInfo& iInfo )
 {
-	throw RayException( "RayPointLight::getDiffuse undefined" );
-	return Point3D();
+	return Point3D(0, 0, 0);
 }
 Point3D RayPointLight::getSpecular( Point3D cameraPosition , RayIntersectionInfo& iInfo )
 {
-	throw RayException( "RayPointLight::getSpecular undefined" );
-	return Point3D();
+	return Point3D(0, 0, 0);
 }
 bool RayPointLight::isInShadow( RayIntersectionInfo& iInfo , RayShape* shape , int& isectCount )
 {

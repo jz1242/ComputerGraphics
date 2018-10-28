@@ -20,18 +20,24 @@ double RaySphere::intersect( Ray3D ray , RayIntersectionInfo& iInfo , double mx 
 	double c = (ray.position - center).squareNorm() - r2;
 	double sol_1 = (-b + sqrt(b*b - 4 * a*c)) / (2 * a);
 	double sol_2 = (-b - sqrt(b*b - 4 * a*c)) / (2 * a);
+	double ret = -1;
 	if (sol_1 > 0) {
-		return sol_1;
+		ret = sol_1;
 	}
 	if (sol_2 > 0) {
-		return sol_2;
+		ret = sol_2;
 	}
-	return -1;
+	if ((mx > 0 && ret >= mx) || ret < 0) {
+		return -1.0;
+	}
+	iInfo.iCoordinate = ray.position + ray.direction * ret;
+	iInfo.material = this->material;
+	iInfo.normal = (iInfo.iCoordinate - center).unit();
+	return ret;
 }
 
 BoundingBox3D RaySphere::setBoundingBox( void )
 {
-	throw RayException( "RaySphere::setBoundingBox undefined" );
 	return bBox;
 }
 

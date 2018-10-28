@@ -11,7 +11,7 @@
 ///////////////////////
 double BoundingBox3D::intersect( const Ray3D& ray ) const
 {
-	throw GeometryException( "BoundingBox3D::intersect undefined" );
+	//throw GeometryException( "BoundingBox3D::intersect undefined" );
 	return -1;
 }
 

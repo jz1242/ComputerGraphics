@@ -15,35 +15,43 @@ void RayTriangle::initialize(void)
 
 double RayTriangle::intersect( Ray3D ray , RayIntersectionInfo& iInfo , double mx )
 {
+	Point3D n = plane.normal;
+	Point3D pos = ray.position;
+	Point3D dir = ray.direction;
 
-	//Point3D h, s, q;
-	//double a, f, u, v, w;
-	//h = Point3D::CrossProduct(ray.direction, v2);
-	//a = Point3D::Dot(v1, h);
-	//if (abs(a) < RAYEPS) // The ray does not hit the triangle
-	//	return -1;
+	double t = -Point3D::Dot(n, pos) - plane.distance;
+	double den = Point3D::Dot(dir, n);
+	if (den > -FLT_EPSILON && den < FLT_EPSILON) {
+		return -1;
+	}
+	double t_dist = t / Point3D::Dot(dir, n);
+	if (t_dist < 0 || (mx != -1 && t_dist > mx)) {
+		return -1;
+	}
+	Point3D curr_p = pos + dir * (t_dist);
 
-	//f = 1.0 / a;
-	//s = ray.position - this->v[0]->position;
-	//u = f * Point3D::Dot(s, h);
-	//if (u < 0 || u > 1.0)
-	//	return -1;
-	//q = Point3D::CrossProduct(s, v1);
-	//v = f * Point3D::Dot(ray.direction, q);
-	//if (v < 0 || u + v > 1.0)
-	//	return -1;
-	//double t = f * Point3D::Dot(v2, q);
-	//if (t < RAYEPS) // ray intersection culling
-	//	return -1;
-	//if (mx >= 0 && t >= mx) // We do not have a valid intersection
-	//	return -1;
-	//w = 1 - u - v;
-	//iInfo.normal = (this->v[0]->normal * u + this->v[1]->normal * v + this->v[2]->normal * w).unit();
-	//return t;
+	Point3D v0top = curr_p - v[0]->position;
+	double v1dotv2 = Point3D::Dot(v1, v2);
+	double curr_p_v1 = Point3D::Dot(v0top, v1);
+	double curr_p_v2 = Point3D::Dot(v0top, v2);
+	double v1norm2 = v1.squareNorm();
+	double v2norm2 = v2.squareNorm();
+
+	double inv_den = 1 / (v1norm2 * v2norm2 - v1dotv2 * v1dotv2);
+	double u = (v2norm2 * curr_p_v1 - v1dotv2 * curr_p_v2) * inv_den;
+	double v = (v1norm2 * curr_p_v2 - v1dotv2 * curr_p_v1) * inv_den;
+	double w = 1 - u - v;
+
+	// Update if required
+	if (w < 0 || u < 0 || v < 0) {
+		return -1;
+	}
+	iInfo.iCoordinate = curr_p;
+	iInfo.normal = (this->v[0]->normal * w + this->v[1]->normal * u + this->v[2]->normal * v).unit();
+	return t_dist;
 }
 BoundingBox3D RayTriangle::setBoundingBox( void )
 {
-	throw RayException( "RayTriangle::setBoundingBox undefined" );
 	return bBox;
 }
 

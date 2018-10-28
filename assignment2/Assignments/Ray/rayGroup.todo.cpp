@@ -14,15 +14,25 @@
 ////////////////////////
 double RayGroup::intersect( Ray3D ray , RayIntersectionInfo& iInfo , double mx )
 {
-	double dist = -1;
-	int len = shapes.size();
-	for (int i = 0; i < len; i++) {
-		double val = shapes[i]->intersect(ray, iInfo, mx);
-		if (val) {
-			dist = val;
+	RayIntersectionInfo tmp; // so we dont change iInfo
+	Ray3D transformRayWorld = getInverseMatrix() * ray;
+	transformRayWorld.direction = transformRayWorld.direction.unit();
+	double val = mx;
+	for (int i = 0; i < shapes.size(); i++) {
+		double isIntersected = shapes[i]->intersect(transformRayWorld, tmp, val);
+		if (isIntersected > 0) {
+			Point3D worldDist = (tmp.iCoordinate - (getMatrix() * transformRayWorld).position);
+			val = worldDist.length();
 		}
 	}
-	return dist;
+	if (mx > 0 && val >= mx) {
+		return -1.0;
+	}
+
+	iInfo.material = tmp.material;
+	iInfo.normal = getNormalMatrix().multDirection(tmp.normal).unit();
+	iInfo.iCoordinate = getMatrix().multPosition(tmp.iCoordinate);
+	return val;
 }
 
 BoundingBox3D RayGroup::setBoundingBox( void )
@@ -32,9 +42,8 @@ BoundingBox3D RayGroup::setBoundingBox( void )
 
 bool StaticRayGroup::set( void )
 {
-	static bool firstTime = true;
-	if( firstTime ) fprintf( stderr , "[WARNING] StaticRayGroup::set undefined\n" );
-	firstTime = false;
+	inverseTransform = localTransform.inverse();
+	normalTransform = localTransform.transpose().inverse();
 	return true;
 }
 //////////////////
@@ -54,14 +63,18 @@ int RayGroup::drawOpenGL( int materialIndex , GLSLProgram * glslProgram )
 ////////////////////////
 double TriangleListRayGroup::intersect( Ray3D ray , RayIntersectionInfo& iInfo , double mx )
 {
-	double dist = -1;
-	int len = shapes.size();
-	for (int i = 0; i < len; i++) {
-		double val = shapes[i]->intersect(ray, iInfo, mx);
-		if (val) {
-			dist = val;
+	double dist = mx;
+	for (int i = 0; i < shapes.size(); i++) {
+		double intersect_dist = shapes[i]->intersect(ray, iInfo, dist);
+		if (intersect_dist > 0) {
+			dist = intersect_dist;
 		}
 	}
+	if (mx > 0 && dist >= mx) {
+		return -1.0;
+	}
+	iInfo.material = material;
+	iInfo.iCoordinate = ray.position + ray.direction * dist;
 	return dist;
 }
 

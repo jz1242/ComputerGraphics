@@ -16,7 +16,13 @@
 //////////////////
 void RayCamera::drawOpenGL( void )
 {
-	throw RayException( "RayCamera::drawOpenGL undefined" );
+	glMatrixMode(GL_MODELVIEW);
+	glLoadIdentity();
+	gluLookAt(position[0], position[1], position[2], direction[0], direction[1], direction[2], up[0], up[1], up[2]);
+	glEnable(GL_LIGHTING);
+	glEnable(GL_DEPTH_TEST);
+	glShadeModel(GL_SMOOTH);
+	glEnable(GL_BLEND);
 }
 void RayCamera::rotateUp( Point3D center , float angle )
 {

@@ -8,9 +8,9 @@
 ////////////////////////
 void RayTriangle::initialize(void)
 {
-	static bool firstTime = true;
-	if (firstTime) fprintf(stderr, "[WARNING] RayTriangle::intialize undefined");
-	firstTime = false;
+	//static bool firstTime = true;
+	//if (firstTime) fprintf(stderr, "[WARNING] RayTriangle::intialize undefined");
+	//firstTime = false;
 }
 double RayTriangle::intersect(Ray3D ray, RayIntersectionInfo& iInfo, double mx)
 {
@@ -32,6 +32,14 @@ BoundingBox3D RayTriangle::setBoundingBox(void)
 //////////////////
 int RayTriangle::drawOpenGL(int materialIndex, GLSLProgram * glslProgram)
 {
-	throw RayException("RayTriangle::drawOpenGL undefined");
+	glBegin(GL_TRIANGLES);
+	glVertex3f(v[0]->position[0], v[0]->position[1], v[0]->position[2]);
+	glNormal3f(v[0]->normal[0], v[0]->normal[1], v[0]->normal[2]);
+	glVertex3f(v[1]->position[0], v[1]->position[1], v[1]->position[2]);
+	glNormal3f(v[1]->normal[0], v[1]->normal[1], v[1]->normal[2]);
+	glVertex3f(v[2]->position[0], v[2]->position[1], v[2]->position[2]);
+	glNormal3f(v[2]->normal[0], v[2]->normal[1], v[2]->normal[2]);
+	glEnd();
+	glFlush();
 	return -1;
 }

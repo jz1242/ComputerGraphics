@@ -38,9 +38,9 @@ BoundingBox3D RayGroup::setBoundingBox(void)
 
 bool StaticRayGroup::set(void)
 {
-	static bool firstTime = true;
-	if (firstTime) fprintf(stderr, "[WARNING] StaticRayGroup::set undefined\n");
-	firstTime = false;
+	//static bool firstTime = true;
+	//if (firstTime) fprintf(stderr, "[WARNING] StaticRayGroup::set undefined\n");
+	//firstTime = false;
 	return true;
 }
 //////////////////
@@ -48,10 +48,24 @@ bool StaticRayGroup::set(void)
 //////////////////
 int RayGroup::drawOpenGL(int materialIndex, GLSLProgram * glslProgram)
 {
-	throw RayException("RayGroup::drawOpenGL undefined");
+
+	//return -1;
+	glMatrixMode(GL_MODELVIEW);
+	Matrix4D m = getMatrix();
+	GLdouble matrix[16] = {
+		m(0,0), m(0,1), m(0,2), m(0,3),
+		m(1,0), m(1,1), m(1,2), m(1,3),
+		m(2,0), m(2,1), m(2,2), m(2,3),
+		m(3,0), m(3,1), m(3,2), m(3,3)
+	};
+	glPushMatrix();
+	glMultMatrixd(matrix);
+	for (int i = 0; i < shapes.size(); i++) {
+		shapes[i]->drawOpenGL(materialIndex, glslProgram);
+	}
+	glPopMatrix();
 	return -1;
 }
-
 //////////////////////////
 // TriangleListRayGroup //
 //////////////////////////
@@ -66,14 +80,27 @@ double TriangleListRayGroup::intersect(Ray3D ray, RayIntersectionInfo& iInfo, do
 
 int TriangleListRayGroup::drawOpenGL(int materialIndex, GLSLProgram * glslProgram)
 {
-	throw RayException("TriangleListRayGroup::drawOpenGL undefined");
+	glMatrixMode(GL_MODELVIEW);
+	Matrix4D m = getMatrix();
+	GLdouble matrix[16] = {
+		m(0,0), m(0,1), m(0,2), m(0,3),
+		m(1,0), m(1,1), m(1,2), m(1,3),
+		m(2,0), m(2,1), m(2,2), m(2,3),
+		m(3,0), m(3,1), m(3,2), m(3,3)
+	};
+	glPushMatrix();
+	glMultMatrixd(matrix);
+	material->drawOpenGL(glslProgram);
+	for (int i = 0; i < shapes.size(); i++) {
+		shapes[i]->drawOpenGL(materialIndex, glslProgram);
+	}
 	return -1;
 }
 
 void TriangleListRayGroup::setUpOpenGL(int cplx, bool setBufferObjects)
 {
 	_vertexArrayID = _vertexBufferID = _elementBufferID = 0;
-	throw RayException("TriangleListRayGroup::setUpOpenGL undefined");
+	//throw RayException("TriangleListRayGroup::setUpOpenGL undefined");
 }
 
 /////////////////////

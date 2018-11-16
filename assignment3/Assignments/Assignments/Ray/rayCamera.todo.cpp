@@ -18,29 +18,33 @@ void RayCamera::drawOpenGL( void )
 {
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
-	gluLookAt(position[0], position[1], position[2], direction[0], direction[1], direction[2], up[0], up[1], up[2]);
-	glEnable(GL_LIGHTING);
-	glEnable(GL_DEPTH_TEST);
-	glShadeModel(GL_SMOOTH);
-	glEnable(GL_BLEND);
+	gluLookAt(position[0], position[1], position[2], direction[0] + position[0], direction[1] + position[1], direction[2] + position[2], up[0], up[1], up[2]);
+
 }
 void RayCamera::rotateUp( Point3D center , float angle )
 {
-	throw RayException( "RayCamera::rotateUp undefined" );
+	//glTranslatef(-center[0], -center[1], -center[2]);
+	//glRotatef(angle, 0.0f, 1.0f, 0.0f);
+	//glTranslatef(center[0], center[1], center[2]);
+	//glFlush();
 }
 void RayCamera::rotateRight( Point3D center , float angle )
 {
-	throw RayException( "RayCamera::rotateRight undefined" );
+	//glTranslatef(-center[0], -center[1], -center[2]);
+	//glRotatef(angle, 1.0f, 0.0f, 0.0f);
+	//glTranslatef(center[0], center[1], center[2]);
+	//glFlush();
 }
 void RayCamera::moveForward( float dist )
 {
-	throw RayException( "RayCamera::moveForward undefined" );
+	position += direction * dist;
 }
 void RayCamera::moveRight( float dist )
 {
-	throw RayException( "RayCamera::moveRight undefined" );
+	position += right * dist;
 }
 void RayCamera::moveUp( float dist )
 {
-	throw RayException( "RayCamera::moveUp undefined" );
+	position += up * dist;
 }
+

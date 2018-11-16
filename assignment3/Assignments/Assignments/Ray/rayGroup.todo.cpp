@@ -80,7 +80,6 @@ double TriangleListRayGroup::intersect(Ray3D ray, RayIntersectionInfo& iInfo, do
 
 int TriangleListRayGroup::drawOpenGL(int materialIndex, GLSLProgram * glslProgram)
 {
-	glMatrixMode(GL_MODELVIEW);
 	Matrix4D m = getMatrix();
 	GLdouble matrix[16] = {
 		m(0,0), m(0,1), m(0,2), m(0,3),
@@ -90,10 +89,23 @@ int TriangleListRayGroup::drawOpenGL(int materialIndex, GLSLProgram * glslProgra
 	};
 	glPushMatrix();
 	glMultMatrixd(matrix);
+	if (material->tex && material->tex->img) {
+		glBindTexture(GL_TEXTURE_2D, material->tex->openGLHandle);
+		glEnable(GL_TEXTURE_2D);
+		glBindTexture(GL_TEXTURE_2D, material->tex->openGLHandle);
+	}
+	
 	material->drawOpenGL(glslProgram);
-	for (int i = 0; i < shapes.size(); i++) {
+	glMatrixMode(GL_MODELVIEW);
+	int n_shapes = shapes.size();
+	for (int i = 0; i < n_shapes; ++i) {
 		shapes[i]->drawOpenGL(materialIndex, glslProgram);
 	}
+
+	//glBindTexture(GL_TEXTURE_2D, 0);
+	//glDisable(GL_TEXTURE_2D);
+
+	glPopMatrix();
 	return -1;
 }
 

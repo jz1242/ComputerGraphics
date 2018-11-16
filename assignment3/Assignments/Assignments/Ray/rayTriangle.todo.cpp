@@ -33,10 +33,13 @@ BoundingBox3D RayTriangle::setBoundingBox(void)
 int RayTriangle::drawOpenGL(int materialIndex, GLSLProgram * glslProgram)
 {
 	glBegin(GL_TRIANGLES);
+	glTexCoord2f(v[0]->texCoordinate[0], v[0]->texCoordinate[1]);
 	glVertex3f(v[0]->position[0], v[0]->position[1], v[0]->position[2]);
 	glNormal3f(v[0]->normal[0], v[0]->normal[1], v[0]->normal[2]);
+	glTexCoord2f(v[1]->texCoordinate[0], v[1]->texCoordinate[1]);
 	glVertex3f(v[1]->position[0], v[1]->position[1], v[1]->position[2]);
 	glNormal3f(v[1]->normal[0], v[1]->normal[1], v[1]->normal[2]);
+	glTexCoord2f(v[2]->texCoordinate[0], v[2]->texCoordinate[1]);
 	glVertex3f(v[2]->position[0], v[2]->position[1], v[2]->position[2]);
 	glNormal3f(v[2]->normal[0], v[2]->normal[1], v[2]->normal[2]);
 	glEnd();

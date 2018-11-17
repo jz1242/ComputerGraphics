@@ -18,8 +18,8 @@ Point3D target;
 bool initialized = false;
 void RayCamera::drawOpenGL( void )
 {
-	glMatrixMode(GL_MODELVIEW);
-	glLoadIdentity();
+	//glMatrixMode(GL_MODELVIEW);
+	//glLoadIdentity();
 	if (!initialized) {
 		target[0] = direction[0] + position[0];
 		target[1] = direction[1] + position[1];
@@ -32,18 +32,21 @@ void RayCamera::drawOpenGL( void )
 void RayCamera::rotateUp(Point3D center, float angle) {
 	/*Point3D k = up;
 	position = position * cos(angle) + (Point3D::CrossProduct(k, position))*sin(angle) + k * (Point3D::Dot(k, position))*(1 - cos(angle));*/
-	glTranslatef(-position[0], -position[1], -position[2]);
-	glRotatef(angle, 0.0f, 1.0f, 0.0f);
-	glTranslatef(position[0], position[1], position[2]);
-	//glFlush();
+	//glMatrixMode(GL_MODELVIEW);
+
+	glTranslatef(-center[0], -center[1], -center[2]);
+	glRotatef(angle, 0.0f, 1.0f, 1.0f);
+	glTranslatef(center[0], center[1], center[2]);
+	glFlush();
 }
 void RayCamera::rotateRight(Point3D center, float angle) {
 	/*Point3D k = Point3D::CrossProduct(direction, up);
 	position = position * cos(angle) + (Point3D::CrossProduct(k, position))*sin(angle) + k * (Point3D::Dot(k, position))*(1 - cos(angle));*/
-	//glTranslatef(-center[0], -center[1], -center[2]);
-	//glRotatef(angle, 1.0f, 0.0f, 0.0f);
-	//glTranslatef(center[0], center[1], center[2]);
-	//glFlush();
+	//sglMatrixMode(GL_MODELVIEW);
+	glTranslatef(-center[0], -center[1], -center[2]);
+	glRotatef(angle, 1.0f, 0.0f, 0.0f);
+	glTranslatef(center[0], center[1], center[2]);
+	glFlush();
 }
 void RayCamera::moveForward( float dist )
 {

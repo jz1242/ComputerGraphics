@@ -190,7 +190,7 @@ Matrix3D Matrix3D::inverse( void ) const
 Point3D Matrix3D::operator * ( const Point3D& p ) const
 {
 	Point3D q;
-	for( int i=0 ; i<3 ; i++ ) for( int j=0 ; j<3 ; j++ ) q[i] = m[j][i] * p[j];
+	for( int i=0 ; i<3 ; i++ ) for( int j=0 ; j<3 ; j++ ) q[i] += m[j][i] * p[j];
 	return q;
 }
 Ray3D Matrix3D::operator * (const Ray3D& r) const

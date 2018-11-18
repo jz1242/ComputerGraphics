@@ -61,10 +61,10 @@ int RayGroup::drawOpenGL(int materialIndex, GLSLProgram * glslProgram)
 	glPushMatrix();
 	glMultMatrixd(matrix);
 	for (int i = 0; i < shapes.size(); i++) {
-		shapes[i]->drawOpenGL(materialIndex, glslProgram);
+		materialIndex = shapes[i]->drawOpenGL(materialIndex, glslProgram);
 	}
 	glPopMatrix();
-	return -1;
+	return materialIndex;
 }
 //////////////////////////
 // TriangleListRayGroup //
@@ -106,7 +106,7 @@ int TriangleListRayGroup::drawOpenGL(int materialIndex, GLSLProgram * glslProgra
 	//glDisable(GL_TEXTURE_2D);
 
 	glPopMatrix();
-	return -1;
+	return material->index;
 }
 
 void TriangleListRayGroup::setUpOpenGL(int cplx, bool setBufferObjects)

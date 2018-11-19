@@ -52,12 +52,7 @@ int RayGroup::drawOpenGL(int materialIndex, GLSLProgram * glslProgram)
 	//return -1;
 	glMatrixMode(GL_MODELVIEW);
 	Matrix4D m = getMatrix();
-	GLdouble matrix[16] = {
-		m(0,0), m(0,1), m(0,2), m(0,3),
-		m(1,0), m(1,1), m(1,2), m(1,3),
-		m(2,0), m(2,1), m(2,2), m(2,3),
-		m(3,0), m(3,1), m(3,2), m(3,3)
-	};
+	GLdouble matrix[16] = { m(0,0), m(0,1), m(0,2), m(0,3), m(1,0), m(1,1), m(1,2), m(1,3), m(2,0), m(2,1), m(2,2), m(2,3), m(3,0), m(3,1), m(3,2), m(3,3)};
 	glPushMatrix();
 	glMultMatrixd(matrix);
 	for (int i = 0; i < shapes.size(); i++) {
@@ -88,16 +83,11 @@ int TriangleListRayGroup::drawOpenGL(int materialIndex, GLSLProgram * glslProgra
 		material->drawOpenGL(glslProgram);
 	}
 	Matrix4D m = getMatrix();
-	GLdouble mat[16] = {
-		m(0,0), m(0,1), m(0,2), m(0,3),
-		m(1,0), m(1,1), m(1,2), m(1,3),
-		m(2,0), m(2,1), m(2,2), m(2,3),
-		m(3,0), m(3,1), m(3,2), m(3,3)
-	};
+	GLdouble mat[16] = { m(0,0), m(0,1), m(0,2), m(0,3), m(1,0), m(1,1), m(1,2), m(1,3), m(2,0), m(2,1), m(2,2), m(2,3), m(3,0), m(3,1), m(3,2), m(3,3)};
 	glMatrixMode(GL_MODELVIEW);
 	glPushMatrix();
 	glMultMatrixd(mat);
-	for (int i = 0; i < shapes.size(); ++i) {
+	for (int i = 0; i < shapes.size(); i++) {
 		shapes[i]->drawOpenGL(materialIndex, glslProgram);
 	}
 	glPopMatrix();

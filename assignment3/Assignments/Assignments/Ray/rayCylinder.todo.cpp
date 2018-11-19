@@ -36,68 +36,63 @@ void RayCylinder::setUpOpenGL(int cplx, bool setBufferObjects)
 
 int RayCylinder::drawOpenGL(int materialIndex, GLSLProgram * glslProgram)
 {
-	glPushAttrib(GL_ALL_ATTRIB_BITS);
-	if (material->tex && material->tex->img) {
-		glEnable(GL_TEXTURE_2D);
-		glBindTexture(GL_TEXTURE_2D, material->tex->openGLHandle);
-	}
 	if (materialIndex != material->index) {
 		material->drawOpenGL(glslProgram);
 	}
-	int sides = openGLComplexity, slices = openGLComplexity;
+	glPushAttrib(GL_ALL_ATTRIB_BITS);
+	int res = openGLComplexity;
 
-	const float theta = 2. * PI / sides;
-	const float c = cos(theta);
-	const float s = sin(theta);
-	const float x = center[0];
-	const float y = center[1] - height * 0.5;
-	const float z = center[2];
+	double angle = (PI / res) * 2;
+	double p1 = 1;
+	double p2 = 0;
 
-	// Barrel of the cylinder 
-	float x2 = radius, z2 = 0;
+	double half = center[1] + (height / 2);
+	double halfbot = center[1] - (height / 2);
 	glBegin(GL_TRIANGLE_STRIP);
-	for (int i = 0; i <= sides; i++) {
-		// texture coord
-		const float tx = float(i) / sides;
-		const float nf = 1. / sqrt(x2*x2 + z2 * z2);
-		const float xn = x2 * nf;
-		const float zn = z2 * nf;
-		glNormal3f(xn, 0, zn);
-		glTexCoord2f(tx, 0);
-		glVertex3f(x + x2, y, z + z2);
-		glNormal3f(xn, 0, zn);
-		glTexCoord2f(tx, 1);
-		glVertex3f(x + x2, y + height, z + z2);
-		// next position
-		const float x3 = x2;
-		x2 = c * x2 - s * z2;
-		z2 = s * x3 + c * z2;
+	for (int i = 0; i <= res; i++) {
+		double cosine = cos(angle * i);
+		double cosine1 = cos(angle * (i + 1));
+		double sine = sin(angle * i);
+		double sine1 = sin(angle * (i + 1));
+		glVertex3f(center[0], half, center[2]);
+		glNormal3f(0, 1, 0);
+		glVertex3f(radius * cosine1 + center[0], half, radius * sine1);
+		glNormal3f(0, 1, 0);
+		glVertex3f(radius * cosine + center[0], half, radius * sine + center[2]);
+		glNormal3f(0, 1, 0);
 	}
 	glEnd();
-	glFlush();
+	glBegin(GL_TRIANGLE_STRIP);
+	for (int i = 0; i <= res; i++) {
+		glVertex3f(center[0] + p1, halfbot, center[2] + p2);
+		glNormal3f(p1, 0, p2);
+		glVertex3f(center[0] + p1, half, center[2] + p2);
+		glNormal3f(p1, 0, p2);
+		//rotate point
+		double a = cos(angle) * p1 - sin(angle) * p2;
+		double b = sin(angle) * p1 + cos(angle) * p2;
+		p1 = a;
+		p2 = b;
+	}
+	glEnd();
+
 
 	glBegin(GL_TRIANGLE_FAN);
-	float cy = center[1] + 0.5 * height;
-	glVertex3f(x, cy, z);
-	glNormal3f(0.0f, 1.0f, 0.0f);
-	for (int k = sides; k >= 0; --k) {
-		glVertex3f(x + radius * cos(theta * k), cy, z + radius * sin(theta * k));
-		glNormal3f(0.0f, 1.0f, 0.0f);
-	}
-	glEnd();
-	glFlush();
+	for (int i = 0; i <= res; i++) {
+		double cosine = cos(angle * i);
+		double cosine1 = cos(angle * (i + 1));
+		double sine = sin(angle * i);
+		double sine1 = sin(angle * (i + 1));
 
-	glBegin(GL_TRIANGLE_FAN);
-	cy = center[1] - 0.5 * height;
-	glNormal3f(0.0f, 1.0f, 0.0f);
-	glVertex3f(x, cy, z);
-	for (int k = 0; k <= sides; ++k) {
-		glNormal3f(0.0f, -1.0f, 0.0f);
-		glVertex3f(x + radius * cos(theta * k), cy, z + radius * sin(theta * k));
+		glVertex3f(center[0], halfbot, center[2]);
+		glNormal3f(0, -1, 0);
+		glVertex3f(radius * cosine + center[0], halfbot, radius * sine + center[2]);
+		glNormal3f(0, -1, 0);
+		glVertex3f(radius * cosine1 + center[0], halfbot, radius * sine1);
+		glNormal3f(0, -1, 0);
 	}
 	glEnd();
 
-	glFlush();
 	glPopAttrib();
 	return material->index;
 }

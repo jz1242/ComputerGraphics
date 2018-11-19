@@ -37,10 +37,6 @@ void RaySphere::setUpOpenGL(int cplx, bool setBufferObjects)
 
 int RaySphere::drawOpenGL(int materialIndex, GLSLProgram * glslProgram)
 {
-	if (material->tex && material->tex->img) {//check texture exists
-		glEnable(GL_TEXTURE_2D);
-		glBindTexture(GL_TEXTURE_2D, material->tex->openGLHandle);
-	}
 	if (materialIndex != material->index) {
 		material->drawOpenGL(glslProgram);
 	}

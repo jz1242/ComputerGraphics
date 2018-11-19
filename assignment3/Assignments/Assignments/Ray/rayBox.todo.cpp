@@ -28,13 +28,10 @@ BoundingBox3D RayBox::setBoundingBox(void)
 //////////////////
 int RayBox::drawOpenGL(int materialIndex, GLSLProgram * glslProgram)
 {
-	GLfloat n[6][3] = {  /* Normals for the 6 faces of a box. */
-		{-1.0, 0.0, 0.0}, {0.0, 1.0, 0.0}, {1.0, 0.0, 0.0},
-		{0.0, -1.0, 0.0}, {0.0, 0.0, 1.0}, {0.0, 0.0, -1.0} };
-	GLint faces[6][4] = {  /* Vertex indices for the 6 faces of a cube. */
-		{0, 1, 2, 3}, {3, 2, 6, 7}, {7, 6, 5, 4},
-		{4, 5, 1, 0}, {5, 6, 2, 1}, {7, 4, 0, 3} };
-	GLfloat v[8][3];  /* Will be filled in with X,Y,Z vertexes. */
+	if (materialIndex != material->index) {
+		material->drawOpenGL(glslProgram);
+	}
+	GLfloat v[8][3];
 
 	v[0][0] = v[1][0] = v[2][0] = v[3][0] = (center[0] - (length[0] * 0.5));
 	v[4][0] = v[5][0] = v[6][0] = v[7][0] = (center[0] + (length[0] * 0.5));
@@ -43,11 +40,17 @@ int RayBox::drawOpenGL(int materialIndex, GLSLProgram * glslProgram)
 	v[0][2] = v[3][2] = v[4][2] = v[7][2] = (center[2] - (length[2] * 0.5));
 	v[1][2] = v[2][2] = v[5][2] = v[6][2] = (center[2] + (length[2] * 0.5));
 
-	if (materialIndex != material->index) material->drawOpenGL(glslProgram);
-	int i;
-	for (i = 0; i < 6; i++) {
+	GLfloat norms[6][3] = { 
+		{-1.0, 0.0, 0.0}, {0.0, 1.0, 0.0}, {1.0, 0.0, 0.0},
+		{0.0, -1.0, 0.0}, {0.0, 0.0, 1.0}, {0.0, 0.0, -1.0} };
+	GLint faces[6][4] = {  
+		{0, 1, 2, 3}, {3, 2, 6, 7}, {7, 6, 5, 4},
+		{4, 5, 1, 0}, {5, 6, 2, 1}, {7, 4, 0, 3} };
+;
+
+	for (int i = 0; i < 6; i++) {
 		glBegin(GL_QUADS);
-		glNormal3fv(&n[i][0]);
+		glNormal3fv(&norms[i][0]);
 		glVertex3fv(&v[faces[i][0]][0]);
 		glVertex3fv(&v[faces[i][1]][0]);
 		glVertex3fv(&v[faces[i][2]][0]);

@@ -1,4 +1,4 @@
-#texture mouth.jpg
+#texture earth_day.jpg
 #material
 	0.0 0.0 0.0
 	0.3 0.3 0.3
@@ -6,7 +6,7 @@
 	1.0 1.0 1.0 128
 	0.0 0.0 0.0
 	1.05
-	-1
+	0
 	!!
 #shape_triangles_begin 0
 #vertex
@@ -16,15 +16,15 @@
 #vertex
 	 2  0  2
 	 0  1  0
-	 0  0
+	 1  0
 #vertex
 	 2  0 -2
 	 0  1  0
-	 0  0
+	 1	1
 #vertex
 	-2  0 -2
 	 0  1  0
-	 0  0
+	 0  1
 #shape_triangle
 	0 1 2
 #shape_triangle

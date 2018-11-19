@@ -41,38 +41,41 @@ int RayCylinder::drawOpenGL(int materialIndex, GLSLProgram * glslProgram)
 	}
 	glPushAttrib(GL_ALL_ATTRIB_BITS);
 	int res = openGLComplexity;
-
-	double angle = (PI / res) * 2;
 	double p1 = 1;
 	double p2 = 0;
-
-	double half = center[1] + (height / 2);
-	double halfbot = center[1] - (height / 2);
-	glBegin(GL_TRIANGLE_STRIP);
+	double angle = (2 * PI) / res;
+	double yTop = center[1] + (height / 2);
+	double yBot = center[1] - (height / 2);
+	double xRad = center[0] + radius;
+	double zRad = center[2] + radius;
+	glBegin(GL_TRIANGLE_FAN);
 	for (int i = 0; i <= res; i++) {
 		double cosine = cos(angle * i);
 		double cosine1 = cos(angle * (i + 1));
 		double sine = sin(angle * i);
 		double sine1 = sin(angle * (i + 1));
-		glVertex3f(center[0], half, center[2]);
+
+		glVertex3f(center[0], yTop, center[2]);
 		glNormal3f(0, 1, 0);
-		glVertex3f(radius * cosine1 + center[0], half, radius * sine1);
+		glVertex3f(xRad*cosine1, yTop, zRad*sine1);
 		glNormal3f(0, 1, 0);
-		glVertex3f(radius * cosine + center[0], half, radius * sine + center[2]);
+		glVertex3f(xRad*cosine, yTop, zRad*sine);
 		glNormal3f(0, 1, 0);
 	}
 	glEnd();
+
 	glBegin(GL_TRIANGLE_STRIP);
-	for (int i = 0; i <= res; i++) {
-		glVertex3f(center[0] + p1, halfbot, center[2] + p2);
-		glNormal3f(p1, 0, p2);
-		glVertex3f(center[0] + p1, half, center[2] + p2);
-		glNormal3f(p1, 0, p2);
-		//rotate point
-		double a = cos(angle) * p1 - sin(angle) * p2;
-		double b = sin(angle) * p1 + cos(angle) * p2;
-		p1 = a;
-		p2 = b;
+	for (int i = 0; i <= res; i++){
+		double cosine = cos(angle * i);
+		double cosine1 = cos(angle * (i + 1));
+		double sine = sin(angle * i);
+		double sine1 = sin(angle * (i + 1));
+		Point3D n = { xRad*cosine, center[2], zRad*sine };
+		n = n.unit();
+		glVertex3f(xRad*cosine, yBot, zRad*sine);
+		glNormal3f(n[0], n[1], n[2]);
+		glVertex3f(xRad*cosine1, yTop, zRad*sine1);
+		glNormal3f(n[0], n[1], n[2]);
 	}
 	glEnd();
 
@@ -84,11 +87,11 @@ int RayCylinder::drawOpenGL(int materialIndex, GLSLProgram * glslProgram)
 		double sine = sin(angle * i);
 		double sine1 = sin(angle * (i + 1));
 
-		glVertex3f(center[0], halfbot, center[2]);
+		glVertex3f(center[0], yBot, center[2]);
 		glNormal3f(0, -1, 0);
-		glVertex3f(radius * cosine + center[0], halfbot, radius * sine + center[2]);
+		glVertex3f(xRad*cosine, yBot, zRad*sine);
 		glNormal3f(0, -1, 0);
-		glVertex3f(radius * cosine1 + center[0], halfbot, radius * sine1);
+		glVertex3f(xRad*cosine1, yBot, zRad*sine1);
 		glNormal3f(0, -1, 0);
 	}
 	glEnd();

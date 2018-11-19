@@ -1,7 +1,7 @@
 #camera 0.0 10.0 10.0   0.0 -1.0 -1.0   0.0 1.0 -1.0   .523  
 #background 0.2 0.2 0.2
 #ray_file sphere.ray
-#ray_file square.ray
+#ray_file test_texture_square.ray
 #light_dir
 	 0.5  0.5  0.5
 	 1.0  1.0  1.0

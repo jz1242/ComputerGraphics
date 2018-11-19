@@ -37,6 +37,10 @@ void RayCylinder::setUpOpenGL(int cplx, bool setBufferObjects)
 int RayCylinder::drawOpenGL(int materialIndex, GLSLProgram * glslProgram)
 {
 	glPushAttrib(GL_ALL_ATTRIB_BITS);
+	if (material->tex && material->tex->img) {
+		glEnable(GL_TEXTURE_2D);
+		glBindTexture(GL_TEXTURE_2D, material->tex->openGLHandle);
+	}
 	if (materialIndex != material->index) {
 		material->drawOpenGL(glslProgram);
 	}

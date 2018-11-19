@@ -44,5 +44,5 @@ int RayTriangle::drawOpenGL(int materialIndex, GLSLProgram * glslProgram)
 	glNormal3f(v[2]->normal[0], v[2]->normal[1], v[2]->normal[2]);
 	glEnd();
 	glFlush();
-	return -1;
+	return materialIndex;
 }

@@ -37,41 +37,42 @@ void RaySphere::setUpOpenGL(int cplx, bool setBufferObjects)
 
 int RaySphere::drawOpenGL(int materialIndex, GLSLProgram * glslProgram)
 {
+	if (material->tex && material->tex->img) {//check texture exists
+		glEnable(GL_TEXTURE_2D);
+		glBindTexture(GL_TEXTURE_2D, material->tex->openGLHandle);
+	}
+	if (materialIndex != material->index) {
+		material->drawOpenGL(glslProgram);
+	}
 	glPushAttrib(GL_ALL_ATTRIB_BITS);
-	GLUquadricObj *obj = gluNewQuadric();
 	glPushMatrix();
 	glTranslatef(center.p[0], center.p[1], center.p[2]);
-	material->drawOpenGL(glslProgram);
-	//material->drawOpenGL();
-	//gluSphere(obj, radius, openGLComplexity, openGLComplexity);
-	//gluDeleteQuadric(obj);
-	//glFlush();
+	GLfloat a;
+	GLfloat b;
+	GLfloat c; 
 
-	GLfloat x, y, z, alpha, beta; // Storage for coordinates and angles
-	//GLfloat radius = radius;
-	int gradation = 50;
+	double res = PI / 100;
 
-	for (alpha = 0.0; alpha < 3.1415; alpha += PI / gradation)
+	for (double i = 0; i < PI; i += res)
 	{
 		glBegin(GL_TRIANGLE_STRIP);
-		for (beta = 0.0; beta < 2.01*3.1415; beta += PI / gradation)
+		for (double j = 0; j < 2*PI; j += res)
 		{
-			x = radius * cos(beta)*sin(alpha);
-			y = radius * sin(beta)*sin(alpha);
-			z = radius * cos(alpha);
-			glVertex3f(x, y, z);
-			//glNormal3f(x, y, z);
-
-			x = radius * cos(beta)*sin(alpha + PI / gradation);
-			y = radius * sin(beta)*sin(alpha + PI / gradation);
-			z = radius * cos(alpha + PI / gradation);
-			glVertex3f(x, y, z);
-			glNormal3f(x, y, z);
+			a = radius * cos(j)*sin(i);
+			b = radius * sin(j)*sin(i);
+			c = radius * cos(i);
+			glVertex3f(a, b, c);
+			glNormal3f(a, b, c);
+			a = radius * cos(j)*sin(i + res);
+			b = radius * sin(j)*sin(i + res);
+			c = radius * cos(i + res);
+			glVertex3f(a, b, c);
+			glNormal3f(a, b, c);
 		}
 		glEnd();
 	}
 	glFlush();
 	glPopMatrix();
 	glPopAttrib();
-	return -1;
+	return material->index;
 }

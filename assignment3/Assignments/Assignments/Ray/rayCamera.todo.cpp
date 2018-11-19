@@ -21,6 +21,10 @@ void RayCamera::drawOpenGL( void )
 {
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
+	glEnable(GL_LIGHTING);
+	glEnable(GL_DEPTH_TEST);
+	glEnable(GL_LINE_SMOOTH);
+	glEnable(GL_BLEND);
 	if (!initialized) {
 		target[0] = direction[0] + position[0];
 		target[1] = direction[1] + position[1];
@@ -31,8 +35,7 @@ void RayCamera::drawOpenGL( void )
 }
 void RayCamera::rotateUp(Point3D center, float angle) {
 	angle = -angle;
-	Point3D k = up;
-	position = position * cos(angle) + (Point3D::CrossProduct(k, position))*sin(angle) + k * (Point3D::Dot(k, position))*(1 - cos(angle));
+	position = position * cos(angle) + (Point3D::CrossProduct(up, position))*sin(angle) + up * (Point3D::Dot(up, position))*(1 - cos(angle));
 	direction = (direction * cos(angle) + Point3D::CrossProduct(up, direction)*sin(angle) + up * Point3D::Dot(up, direction)*(1 - cos(angle)));
 	right = (Point3D::CrossProduct(direction, up)).unit();
 	direction = direction.unit();
@@ -40,10 +43,9 @@ void RayCamera::rotateUp(Point3D center, float angle) {
 }
 void RayCamera::rotateRight(Point3D center, float angle) {
 	angle = -angle;
-	Point3D k = right;
-	position = position * cos(angle) + (Point3D::CrossProduct(k, position))*sin(angle) + k * (Point3D::Dot(k, position))*(1 - cos(angle));
-	direction = (direction * cos(angle) + Point3D::CrossProduct(k, direction)*sin(angle) + k * Point3D::Dot(k, direction)*(1 - cos(angle)));
-	up = (up * cos(angle) + Point3D::CrossProduct(k, up)*sin(angle) + k * Point3D::Dot(k, up)*(1 - cos(angle))).unit();
+	position = position * cos(angle) + (Point3D::CrossProduct(right, position))*sin(angle) + right * (Point3D::Dot(right, position))*(1 - cos(angle));
+	direction = (direction * cos(angle) + Point3D::CrossProduct(right, direction)*sin(angle) + right * Point3D::Dot(right, direction)*(1 - cos(angle)));
+	up = (up * cos(angle) + Point3D::CrossProduct(right, up)*sin(angle) + right * Point3D::Dot(right, up)*(1 - cos(angle))).unit();
 	direction = direction.unit();
 	target = direction + position;
 

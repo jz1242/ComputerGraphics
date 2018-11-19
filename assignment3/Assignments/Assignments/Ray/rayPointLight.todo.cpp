@@ -44,5 +44,20 @@ Point3D RayPointLight::transparency( RayIntersectionInfo& iInfo , RayShape* shap
 //////////////////
 void RayPointLight::drawOpenGL( int index , GLSLProgram * glslProgram )
 {
-	throw RayException( "RayPointLight::drawOpenGL undefined" );
+	GLfloat pos[] = { GLfloat(location[0]), GLfloat(location[1]), GLfloat(location[2]), 1 };
+	GLfloat ambient[] = { GLfloat(aColor[0]), GLfloat(aColor[1]), GLfloat(aColor[2]) };
+	GLfloat diffuse[] = { GLfloat(dColor[0]), GLfloat(dColor[1]), GLfloat(dColor[2]) };
+	GLfloat specular[] = { GLfloat(sColor[0]), GLfloat(sColor[1]), GLfloat(sColor[2]) };
+	glEnable(GL_LIGHT0 + index);
+	glEnable(GL_DEPTH_TEST);
+	glEnable(GL_LIGHTING);
+	glLightfv(GL_LIGHT0 + index, GL_POSITION, pos);
+	glLightfv(GL_LIGHT0 + index, GL_AMBIENT, ambient);
+	glLightfv(GL_LIGHT0 + index, GL_DIFFUSE, diffuse);
+	glLightfv(GL_LIGHT0 + index, GL_SPECULAR, specular);
+	glLightf(GL_LIGHT0 + index, GL_CONSTANT_ATTENUATION, constAtten);
+	glLightf(GL_LIGHT0 + index, GL_LINEAR_ATTENUATION, linearAtten);
+	glLightf(GL_LIGHT0 + index, GL_QUADRATIC_ATTENUATION, quadAtten);
+
+
 }

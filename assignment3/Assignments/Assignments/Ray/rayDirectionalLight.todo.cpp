@@ -43,20 +43,16 @@ Point3D RayDirectionalLight::transparency( RayIntersectionInfo& iInfo , RayShape
 //////////////////
 void RayDirectionalLight::drawOpenGL( int index , GLSLProgram * glslProgram )
 {
-	GLfloat light_dir[4] = { GLfloat(-direction[0]), GLfloat(-direction[1]), GLfloat(-direction[2]), 0.0 };
-	glLightfv(GL_LIGHT0 + index, GL_POSITION, light_dir);
-
-	GLfloat acol[3] = { GLfloat(aColor[0]), GLfloat(aColor[1]), GLfloat(aColor[2]) };
-	glLightfv(GL_LIGHT0 + index, GL_AMBIENT, acol);
-
-	GLfloat spec_col[3] = { GLfloat(sColor[0]), GLfloat(sColor[1]), GLfloat(sColor[2]) };
-	glLightfv(GL_LIGHT0 + index, GL_SPECULAR, spec_col);
-
-	GLfloat diff_col[3] = { GLfloat(dColor[0]), GLfloat(dColor[1]), GLfloat(dColor[2]) };
-	glLightfv(GL_LIGHT0 + index, GL_DIFFUSE, diff_col);
-
-	//printf("Let there be directional light\n");
 	glEnable(GL_LIGHT0 + index);
 	glEnable(GL_DEPTH_TEST);
 	glEnable(GL_LIGHTING);
+	GLfloat dir_l[] = { GLfloat(-direction[0]), GLfloat(-direction[1]), GLfloat(-direction[2]), 0.0 };
+	GLfloat ambient[] = { GLfloat(aColor[0]), GLfloat(aColor[1]), GLfloat(aColor[2]) };
+	GLfloat diffuse[] = { GLfloat(dColor[0]), GLfloat(dColor[1]), GLfloat(dColor[2]) };
+	GLfloat specular[] = { GLfloat(sColor[0]), GLfloat(sColor[1]), GLfloat(sColor[2]) };
+	glLightfv(GL_LIGHT0 + index, GL_POSITION, dir_l);
+	glLightfv(GL_LIGHT0 + index, GL_AMBIENT, ambient);
+	glLightfv(GL_LIGHT0 + index, GL_DIFFUSE, diffuse);
+	glLightfv(GL_LIGHT0 + index, GL_SPECULAR, specular);
+
 }

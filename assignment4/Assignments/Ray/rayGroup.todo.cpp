@@ -90,7 +90,8 @@ void TriangleListRayGroup::setUpOpenGL(int cplx, bool setBufferObjects)
 Matrix4D ParametrizedEulerAnglesAndTranslation::getMatrix(void)
 {
 	//Util::Throw("Undefined");
-	return Matrix4D::IdentityMatrix();
+	return Matrix4D(Matrix3D(this->value->eulerAngles), this->value->translation);
+	//return Matrix4D::IdentityMatrix();
 }
 Matrix4D ParametrizedClosestRotationAndTranslation::getMatrix(void)
 {

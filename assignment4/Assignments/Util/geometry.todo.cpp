@@ -21,25 +21,27 @@ double BoundingBox3D::intersect( const Ray3D& ray ) const
 /////////////////////
 Matrix3D::Matrix3D( const Point3D& e )
 {
-	//Util::Throw( "Matrix3D::Matrix3D undefined" );
+	double cx = cos(e[0]);
+	double sx = sin(e[0]);
+	double cy = cos(e[1]);
+	double sy = sin(e[1]);
+	double cz = cos(e[2]);
+	double sz = sin(e[2]);
 
-	//(*this) = IdentityMatrix();
-	double c1 = cos(e[0]);
-	double s1 = sin(e[0]);
-	double c2 = cos(e[1]);
-	double s2 = sin(e[1]);
-	double c3 = cos(e[2]);
-	double s3 = sin(e[2]);
 
-	m[0][0] = c2 * c3;
-	m[1][0] = -c2 * s3;
-	m[2][0] = s2;
-	m[0][1] = c1 * s3 + c3 * s1*s2;
-	m[1][1] = c1 * c3 - s1 * s2*s3;
-	m[2][1] = -c2 * s1;
-	m[0][2] = s1 * s3 - c1 * c3*s2;
-	m[1][2] = c3 * s1 + c1 * s2*s3;
-	m[2][2] = c1 * c2;
+	m[0][0] = cy * cz;
+	m[0][1] = cy * sz;
+	m[0][2] = -sy;
+
+
+	m[1][0] = sx * sy*cz - cx * sz;
+	m[1][1] = sx * sy*sz + cx * cz;
+	m[1][2] = sx * cy;
+
+
+	m[2][0] = cx * sy*cz + sx * sz;
+	m[2][1] = cx * sy*sz - sx * cz;
+	m[2][2] = cx * cy;
 }
 
 //Matrix3D::Matrix3D( const Quaternion& q )

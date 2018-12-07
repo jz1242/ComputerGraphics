@@ -39,7 +39,7 @@ void RayCylinder::setUpOpenGL(int cplx, bool setBufferObjects)
 int RayCylinder::drawOpenGL(int materialIndex, GLSLProgram * glslProgram)
 {
 	if (materialIndex != material->index) material->drawOpenGL(glslProgram);
-
+	glPushMatrix();
 	GLUquadric* q = gluNewQuadric();
 	gluQuadricTexture(q, true);
 
@@ -54,6 +54,6 @@ int RayCylinder::drawOpenGL(int materialIndex, GLSLProgram * glslProgram)
 
 	glRotatef(180, 1, 0, 0); // Normals pointing out
 	gluDisk(q, 0, radius, openGLComplexity, openGLComplexity);
-
+	glPopMatrix();
 	return material->index;
 }

@@ -50,6 +50,7 @@ bool StaticRayGroup::set(void)
 
 int RayGroup::drawOpenGL(int materialIndex, GLSLProgram * glslProgram)
 {
+
 	Matrix4D matrix = getMatrix();
 	GLdouble m[16];
 	for (int i = 0; i < 4; i++) for (int j = 0; j < 4; j++) m[i + j * 4] = matrix(j, i);

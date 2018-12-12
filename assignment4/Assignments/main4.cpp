@@ -40,7 +40,6 @@ int main( int argc , char* argv[] )
 		printf( "Unsupported factorization type: %d\n" , Factor.value+1 );
 		Factor.value = RayKeyData::REPRESENTATION_MATRIX+1;
 	}
-	Factor.value = RayKeyData::REPRESENTATION_EULER_AND_TRANSLATION;
 	try
 	{
 		scene.read( InputRayFile.value , Factor.value-1 );

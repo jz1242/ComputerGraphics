@@ -22,5 +22,5 @@ void ParameterSamples< Vector >::setCurrentValue( double t , int type )
 			currentValue = samples[0];
 			break;
 	};
-	throw GeometryException( "ParameterSamples::setCurrentValue undefined" );
+	//throw GeometryException( "ParameterSamples::setCurrentValue undefined" );
 }

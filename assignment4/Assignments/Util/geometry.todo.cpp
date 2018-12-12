@@ -44,56 +44,46 @@ Matrix3D::Matrix3D( const Point3D& e )
 	m[2][2] = cx * cy;
 }
 
-//Matrix3D::Matrix3D( const Quaternion& q )
-//{
-//	Util::Throw( "Matrix3D::Matrix3D undefined" );
-//	(*this) = IdentityMatrix();
-//}
-//Matrix3D Matrix3D::closestRotation( void ) const
-//{
-//	Util::Throw( "Matrix3D::closestRotation undefined" );
-//	return (*this);
-//}
-//Matrix3D Matrix3D::Exp( const Matrix3D& m , int iter )
-//{
-//	Util::Throw( "Matrix3D::Exp undefined" );
-//	return IdentityMatrix();
-//}
-Matrix3D::Matrix3D(const Quaternion& q)
+Matrix3D::Matrix3D( const Quaternion& q )
 {
-	Quaternion curr = q.unit();
-	double r = curr.real;
-	double i = curr.imag[0];
-	double j = curr.imag[1];
-	double k = curr.imag[2];
-	m[0][0] = 1 - 2 * (j*j + k * k);
-	m[1][0] = 2 * (i*j - r * k);
-	m[2][0] = 2 * (i*k + r * j);
-	m[0][1] = 2 * (i*j + r * k);
-	m[1][1] = 1 - 2 * (i*i + k * k);
-	m[2][1] = 2 * (j*k - r * i);
-	m[0][2] = 2 * (i*k - r * j);
-	m[1][2] = 2 * (j*k + r * i);
-	m[2][2] = 1 - 2 * (i*i + j * j);
-}
+	//column major
+	Quaternion unitQ = q.unit();
+	double a = unitQ.real;
+	double b = unitQ.imag[0];
+	double c = unitQ.imag[1];
+	double d = unitQ.imag[2];
+	m[0][0] = 1 - 2 * (pow(c, 2)) - 2 * (pow(d, 2));
+	m[0][1] = 2 * (b*c) + 2 * (a*d);
+	m[0][2] = 2 * (b*d) - 2 * (a*c);
 
-Matrix3D Matrix3D::closestRotation(void) const
-{
-	Matrix3D u, d, v;
-	SVD(u, d, v);
-	for (int r = 0; r < 3; r++) d(r, r) = (d(r, r) > 0) ? 1 : -1;
-	d(2, 2) = (u * v).determinant();
-	return u * d * v;
+	m[1][0] = 2 * (b*c) - 2 * (a*d);
+	m[1][1] = 1 - 2 * (pow(b, 2)) - 2 * (pow(d, 2));
+	m[1][2] = 2 * (c*d) + 2 * (a*b);
+
+	m[2][0] = 2 * (b*d) + 2 * (a*c);
+	m[2][1] = 2 * (c* d) - 2 * (a*b);
+	m[2][2] = 1 - 2 * (pow(b, 2)) - 2 * (pow(c, 2));
 }
-Matrix3D Matrix3D::Exp(const Matrix3D& m, int iter)
+Matrix3D Matrix3D::closestRotation( void ) const
 {
-	Matrix3D e = IdentityMatrix();
-	Matrix3D m_n = m;
-	int k_factorial = 1;
-	for (int i = 1; i <= iter;) {
-		e += m_n / k_factorial;
-		m_n *= m;
-		k_factorial *= ++i;
+	Matrix3D u, sigma, v;
+	SVD(u, sigma, v);
+	for (int r = 0; r < 2; r++) {
+		sigma(r, r) = 1;
 	}
-	return e.closestRotation();
+	Matrix3D mult = u * v;
+	sigma(2, 2) = mult.determinant();
+	return u * sigma * v;
+}
+Matrix3D Matrix3D::Exp( const Matrix3D& m , int iter )
+{
+	Matrix3D res = IdentityMatrix();
+	Matrix3D powM = m;
+	double val = 1;
+	for (int i = 1; i <= iter; i++) {
+		val /= i;
+		res += (powM * val);
+		powM *= m;
+	}
+	return res;
 }

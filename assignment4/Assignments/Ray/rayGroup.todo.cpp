@@ -90,22 +90,26 @@ void TriangleListRayGroup::setUpOpenGL(int cplx, bool setBufferObjects)
 /////////////////////
 Matrix4D ParametrizedEulerAnglesAndTranslation::getMatrix(void)
 {
-	//Util::Throw("Undefined");
-	return Matrix4D(Matrix3D(this->value->eulerAngles), this->value->translation);
-	//return Matrix4D::IdentityMatrix();
+	Matrix3D euler = Matrix3D(this->value->eulerAngles);
+	Point3D translate = this->value->translation;
+	return Matrix4D(euler, translate);
 }
 Matrix4D ParametrizedClosestRotationAndTranslation::getMatrix(void)
 {
-	//til::Throw("Undefined");
-	return Matrix4D::IdentityMatrix();
+	Matrix3D closestRot = this->value->rotation.closestRotation();
+	Point3D translate = this->value->translation;
+	return Matrix4D(closestRot, translate);
 }
 Matrix4D ParametrizedRotationLogarithmAndTranslation::getMatrix(void)
 {
-	//Util::Throw("Undefined");
-	return Matrix4D::IdentityMatrix();
+	int iter = 30;
+	Matrix3D exp = Matrix3D::Exp(value->skewSymmetric, iter);
+	Point3D translate = this->value->translation;
+	return Matrix4D(exp, translate);
 }
 Matrix4D ParametrizedQuaternionAndTranslation::getMatrix(void)
 {
-	//Util::Throw("Undefined");
-	return Matrix4D::IdentityMatrix();
+	Matrix3D quaternion = Matrix3D(this->value->quaternion);
+	Point3D translate = this->value->translation;
+	return Matrix4D(quaternion, translate);
 }
